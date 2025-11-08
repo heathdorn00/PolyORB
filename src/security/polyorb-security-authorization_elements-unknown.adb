@@ -32,6 +32,8 @@
 
 pragma Ada_2012;
 
+with PolyORB.Security.Audit_Log;
+with PolyORB.Security.Secure_Memory;
 with PolyORB.Utils.Unchecked_Deallocation;
 
 package body PolyORB.Security.Authorization_Elements.Unknown is
@@ -109,6 +111,16 @@ package body PolyORB.Security.Authorization_Elements.Unknown is
          Name   => PolyORB.Security.Types.Stream_Element_Array_Access);
 
    begin
+      --  INV-CRYPTO-006: Zeroize authorization token before deallocation
+      --  Prevents authorization data leakage (CWE-316)
+      if Self.The_Data /= null then
+         PolyORB.Security.Secure_Memory.Secure_Zero (Self.The_Data.all);
+         --  INV-AUDIT-001: Audit log CRITICAL authorization element deallocation
+         PolyORB.Security.Audit_Log.Audit_Log
+           (Event     => "Authorization element deallocated",
+            Object_ID => "UNKNOWN_AUTHZ_DATA",
+            Severity  => PolyORB.Security.Audit_Log.INFO);
+      end if;
       Free (Self.The_Data);
    end Release_Contents;
 
