@@ -69,10 +69,12 @@ package body PolyORB.Protocols.GIOP.GIOP_1_1 is
    use PolyORB.Representations.CDR.GIOP_Utils;
    use PolyORB.Request_QoS;
 
-   --  RDB-005 Phase 2: Instantiate generic logging setup from Common_Impl
-   package Logging is new Common_Impl.Generic_Logging_Setup
-     (Version_Suffix => "1_1");
-   use Logging;
+   package L is new PolyORB.Log.Facility_Log
+     ("polyorb.protocols.giop.giop_1_1");
+   procedure O (Message : String; Level : Log_Level := Debug)
+     renames L.Output;
+   function C (Level : Log_Level := Debug) return Boolean
+     renames L.Enabled;
 
    procedure Free is
       new Ada.Unchecked_Deallocation
@@ -845,9 +847,10 @@ package body PolyORB.Protocols.GIOP.GIOP_1_1 is
 
    function New_Implem return GIOP_Implem_Access;
 
-   --  RDB-005 Phase 2: Instantiate generic New_Implem from Common_Impl
-   function New_Implem is new Common_Impl.Generic_New_Implem
-     (Implem_Type => GIOP_Implem_1_1);
+   function New_Implem return GIOP_Implem_Access is
+   begin
+      return new GIOP_Implem_1_1;
+   end New_Implem;
 
    ----------------
    -- Initialize --
@@ -855,10 +858,10 @@ package body PolyORB.Protocols.GIOP.GIOP_1_1 is
 
    procedure Initialize;
 
-   --  RDB-005 Phase 2: Instantiate generic Initialize from Common_Impl
-   procedure Initialize is new Common_Impl.Generic_Initialize
-     (GIOP_Version => GIOP_V1_1,
-      New_Implem   => New_Implem);
+   procedure Initialize is
+   begin
+      Global_Register_GIOP_Version (GIOP_V1_1, New_Implem'Access);
+   end Initialize;
 
    use PolyORB.Initialization;
    use PolyORB.Initialization.String_Lists;

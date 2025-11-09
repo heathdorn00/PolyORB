@@ -38,14 +38,12 @@ pragma Ada_2012;
 
 with Ada.Streams;
 
-with PolyORB.Log;
 with PolyORB.Representations.CDR.Common;
 
 package body PolyORB.Protocols.GIOP.Common_Impl is
 
    use Ada.Streams;
    use PolyORB.Buffers;
-   use PolyORB.Log;
    use PolyORB.Objects;
    use PolyORB.Representations.CDR.Common;
    use PolyORB.Types;
@@ -73,64 +71,5 @@ package body PolyORB.Protocols.GIOP.Common_Impl is
    --  - 100% identical implementation across both versions
    --  - GIOP 1.2 uses Target_Address instead, so requires separate implementation
    --  - This reduces 16 LOC of duplication (8 LOC × 2 files)
-
-   -------------------------
-   -- Generic_Initialize --
-   -------------------------
-
-   procedure Generic_Initialize is
-   begin
-      --  Register this GIOP version with the global GIOP registry
-      Global_Register_GIOP_Version (GIOP_Version, New_Implem'Access);
-   end Generic_Initialize;
-
-   --  RDB-005 Phase 2 Extraction Notes:
-   --  - Extracted from GIOP 1.0 (lines 802-804), GIOP 1.1 (lines 861-863),
-   --    and GIOP 1.2 (lines 1743-1745)
-   --  - 99% similar implementation (only version constant differs)
-   --  - Uses generic with version parameter for template method pattern
-   --  - This reduces 12 LOC of duplication (4 LOC × 3 files)
-
-   ------------------------
-   -- Generic_New_Implem --
-   ------------------------
-
-   function Generic_New_Implem return GIOP_Implem_Access is
-   begin
-      return new Implem_Type;
-   end Generic_New_Implem;
-
-   --  RDB-005 Phase 2 Extraction Notes:
-   --  - Extracted from GIOP 1.0 (lines 790-793), GIOP 1.1 (lines 850-853),
-   --    and GIOP 1.2 (lines 1732-1735)
-   --  - 99% similar implementation (only type differs)
-   --  - Uses generic with type parameter for factory method pattern
-   --  - This reduces 12 LOC of duplication (4 LOC × 3 files)
-
-   -----------------------------
-   -- Generic_Logging_Setup --
-   -----------------------------
-
-   package body Generic_Logging_Setup is
-
-      Facility_Name : constant String :=
-        "polyorb.protocols.giop.giop_" & Version_Suffix;
-
-      package L is new PolyORB.Log.Facility_Log (Facility_Name);
-
-      procedure O (Message : String; Level : Log_Level := Debug)
-        renames L.Output;
-
-      function C (Level : Log_Level := Debug) return Boolean
-        renames L.Enabled;
-
-   end Generic_Logging_Setup;
-
-   --  RDB-005 Phase 2 Extraction Notes:
-   --  - Extracted from GIOP 1.0 (lines 69-74), GIOP 1.1 (lines 72-77),
-   --    and GIOP 1.2 (lines 84-89)
-   --  - 99% similar implementation (only version suffix differs)
-   --  - Uses generic with string parameter for logging setup
-   --  - This reduces 18 LOC of duplication (6 LOC × 3 files)
 
 end PolyORB.Protocols.GIOP.Common_Impl;
