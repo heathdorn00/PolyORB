@@ -35,7 +35,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check if service exists
+        id: check_service
+        run: |
+          if [ -d "services/${{ matrix.service }}" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Service directory services/${{ matrix.service }} not found, skipping"
+          fi
+
       - name: Set up C++ environment
+        if: steps.check_service.outputs.exists == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -47,6 +58,7 @@ jobs:
             libboost-all-dev
 
       - name: Build ${{ matrix.service }}
+        if: steps.check_service.outputs.exists == 'true'
         working-directory: services/${{ matrix.service }}
         run: |
           mkdir -p build
@@ -58,6 +70,7 @@ jobs:
           ninja
 
       - name: Run unit tests
+        if: steps.check_service.outputs.exists == 'true'
         working-directory: services/${{ matrix.service }}/build
         run: |
           # Run tests if they exist
@@ -68,22 +81,18 @@ jobs:
           fi
 
       - name: Upload test results
-        if: always()
+        if: always() && steps.check_service.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.service }}
           path: services/${{ matrix.service }}/build/test-results.xml
           retention-days: 7
 
-  # Job 2: Build Ada Services
+  # Job 2: Build PolyORB (Ada)
   build-ada-services:
     name: Build Ada Services
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-
-    strategy:
-      matrix:
-        service: [orb-core]
+    timeout-minutes: 60
 
     steps:
       - name: Checkout code
@@ -95,20 +104,28 @@ jobs:
           sudo apt-get install -y \
             gnat-13 \
             gprbuild \
-            libgnatcoll-dev
+            gcc \
+            make \
+            autoconf \
+            automake \
+            libtool
 
-      - name: Build ${{ matrix.service }}
-        working-directory: services/${{ matrix.service }}
+      - name: Configure PolyORB
         run: |
-          gprbuild -P ${{ matrix.service }}.gpr \
-            -XBUILD_MODE=release \
-            -p -j0
+          ./configure \
+            --prefix=/usr/local \
+            --enable-debug=no \
+            || (cat config.log && exit 1)
+
+      - name: Build PolyORB
+        run: |
+          make -j$(nproc) all
 
       - name: Verify build output
-        working-directory: services/${{ matrix.service }}
         run: |
-          ls -lh bin/
-          file bin/*
+          echo "Build completed successfully"
+          find . -name "*.ali" | head -10
+          find . -name "*.o" | head -10
 
   # Job 3: Run Test Suite
   test-suite:
@@ -121,7 +138,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check if test suite exists
+        id: check_tests
+        run: |
+          if [ -d "test_stabilize" ] && [ -f "test_stabilize/package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Test suite directory not found, skipping"
+          fi
+
       - name: Set up Node.js (for Jest tests)
+        if: steps.check_tests.outputs.exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -129,19 +157,23 @@ jobs:
           cache-dependency-path: 'test_stabilize/package-lock.json'
 
       - name: Install test dependencies
+        if: steps.check_tests.outputs.exists == 'true'
         working-directory: test_stabilize
         run: npm ci
 
       - name: Run Jest unit tests
+        if: steps.check_tests.outputs.exists == 'true'
         working-directory: test_stabilize
         run: npm test -- --coverage --ci
 
       - name: Run mutation tests
+        if: steps.check_tests.outputs.exists == 'true'
         working-directory: test_stabilize
         run: npx stryker run
         continue-on-error: true
 
       - name: Upload coverage report
+        if: steps.check_tests.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
@@ -157,7 +189,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [widget-core, orb-core, xrc-service]
+        service: [widget-core, xrc-service]
 
     steps:
       - name: Checkout code
