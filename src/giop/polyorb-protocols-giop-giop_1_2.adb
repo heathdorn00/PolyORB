@@ -81,12 +81,10 @@ package body PolyORB.Protocols.GIOP.GIOP_1_2 is
    use PolyORB.Representations.CDR.GIOP_1_2;
    use PolyORB.Request_QoS;
 
-   package L is new PolyORB.Log.Facility_Log
-     ("polyorb.protocols.giop.giop_1_2");
-   procedure O (Message : String; Level : Log_Level := Debug)
-     renames L.Output;
-   function C (Level : Log_Level := Debug) return Boolean
-     renames L.Enabled;
+   --  RDB-005 Phase 2: Instantiate generic logging setup from Common_Impl
+   package Logging is new Common_Impl.Generic_Logging_Setup
+     (Version_Suffix => "1_2");
+   use Logging;
 
    Permitted_Sync_Scopes : constant PolyORB.Requests.Flags :=
      Sync_None or Sync_With_Transport or Sync_With_Server or Sync_With_Target;
@@ -1729,10 +1727,9 @@ package body PolyORB.Protocols.GIOP.GIOP_1_2 is
 
    function New_Implem return GIOP_Implem_Access;
 
-   function New_Implem return GIOP_Implem_Access is
-   begin
-      return new GIOP_Implem_1_2;
-   end New_Implem;
+   --  RDB-005 Phase 2: Instantiate generic New_Implem from Common_Impl
+   function New_Implem is new Common_Impl.Generic_New_Implem
+     (Implem_Type => GIOP_Implem_1_2);
 
    ----------------
    -- Initialize --

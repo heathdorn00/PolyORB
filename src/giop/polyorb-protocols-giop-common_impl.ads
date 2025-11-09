@@ -40,6 +40,7 @@
 pragma Ada_2012;
 
 with PolyORB.Buffers;
+with PolyORB.Log;
 with PolyORB.Objects;
 with PolyORB.Types;
 
@@ -80,8 +81,42 @@ package PolyORB.Protocols.GIOP.Common_Impl is
    --  - polyorb-protocols-giop-giop_1_1.adb (lines 861-863)
    --  - polyorb-protocols-giop-giop_1_2.adb (lines 1743-1745)
 
-   --  Future extractions (Phase 2):
-   --  - New_Implem (factory with version dispatch)
-   --  - Logging setup (macro/helper with version string)
+   --  RDB-005 Extraction Phase 2: New_Implem Factory (99% similar)
+   --  Target: New_Implem function (GIOP 1.0, 1.1, and 1.2)
+
+   generic
+      type Implem_Type is new GIOP_Implem with private;
+   function Generic_New_Implem return GIOP_Implem_Access;
+   --  Template method for GIOP implementation factory
+   --  Only difference across versions is the concrete type instantiated
+   --
+   --  Extracted from:
+   --  - polyorb-protocols-giop-giop_1_0.adb (lines 790-793)
+   --  - polyorb-protocols-giop-giop_1_1.adb (lines 850-853)
+   --  - polyorb-protocols-giop-giop_1_2.adb (lines 1732-1735)
+
+   --  RDB-005 Extraction Phase 2: Logging Setup (99% similar)
+   --  Target: Logging facility setup (GIOP 1.0, 1.1, and 1.2)
+
+   generic
+      Version_Suffix : String;
+   package Generic_Logging_Setup is
+      pragma Elaborate_Body;
+      --  Generic logging setup for GIOP versions
+      --  Provides O (output) and C (check) procedures/functions
+      --
+      --  Usage: package Logging is new Common_Impl.Generic_Logging_Setup
+      --           (Version_Suffix => "1_0");
+      --         use Logging;
+      --
+      --  Extracted from:
+      --  - polyorb-protocols-giop-giop_1_0.adb (lines 69-74)
+      --  - polyorb-protocols-giop-giop_1_1.adb (lines 72-77)
+      --  - polyorb-protocols-giop-giop_1_2.adb (lines 84-89)
+
+      procedure O (Message : String; Level : PolyORB.Log.Log_Level := PolyORB.Log.Debug);
+      function C (Level : PolyORB.Log.Log_Level := PolyORB.Log.Debug) return Boolean;
+
+   end Generic_Logging_Setup;
 
 end PolyORB.Protocols.GIOP.Common_Impl;
