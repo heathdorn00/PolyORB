@@ -42,11 +42,9 @@ with PolyORB.Representations.CDR.Common;
 
 package body PolyORB.Protocols.GIOP.Common_Impl is
 
-   use Ada.Streams;
    use PolyORB.Buffers;
    use PolyORB.Objects;
    use PolyORB.Representations.CDR.Common;
-   use PolyORB.Types;
 
    -------------------------------
    -- Marshall_Locate_Request --
