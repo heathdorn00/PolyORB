@@ -50,6 +50,7 @@ with PolyORB.Opaque;
 with PolyORB.Parameters;
 with PolyORB.Protocols.GIOP.Common;
 pragma Elaborate_All (PolyORB.Protocols.GIOP.Common);
+with PolyORB.Protocols.GIOP.Common_Impl;
 with PolyORB.QoS.Addressing_Modes;
 with PolyORB.QoS.Service_Contexts;
 with PolyORB.QoS.Static_Buffers;
@@ -1739,10 +1740,10 @@ package body PolyORB.Protocols.GIOP.GIOP_1_2 is
 
    procedure Initialize;
 
-   procedure Initialize is
-   begin
-      Global_Register_GIOP_Version (GIOP_V1_2, New_Implem'Access);
-   end Initialize;
+   --  RDB-005 Phase 2: Instantiate generic Initialize from Common_Impl
+   procedure Initialize is new Common_Impl.Generic_Initialize
+     (GIOP_Version => GIOP_V1_2,
+      New_Implem   => New_Implem);
 
    use PolyORB.Initialization;
    use PolyORB.Initialization.String_Lists;

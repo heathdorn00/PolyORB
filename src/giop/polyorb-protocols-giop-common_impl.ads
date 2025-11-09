@@ -65,8 +65,22 @@ package PolyORB.Protocols.GIOP.Common_Impl is
    --  - polyorb-protocols-giop-giop_1_0.adb (lines 771-778)
    --  - polyorb-protocols-giop-giop_1_1.adb (lines 831+)
 
+   --  RDB-005 Extraction Phase 2: Template Methods (99% similar)
+   --  Target: Initialize procedure (GIOP 1.0, 1.1, and 1.2)
+
+   generic
+      GIOP_Version : PolyORB.Types.Octet;
+      with function New_Implem return GIOP_Implem_Access;
+   procedure Generic_Initialize;
+   --  Template method for GIOP version initialization
+   --  Only difference across versions is the GIOP_Version constant
+   --
+   --  Extracted from:
+   --  - polyorb-protocols-giop-giop_1_0.adb (lines 802-804)
+   --  - polyorb-protocols-giop-giop_1_1.adb (lines 861-863)
+   --  - polyorb-protocols-giop-giop_1_2.adb (lines 1743-1745)
+
    --  Future extractions (Phase 2):
-   --  - Initialize (template method with version parameter)
    --  - New_Implem (factory with version dispatch)
    --  - Logging setup (macro/helper with version string)
 

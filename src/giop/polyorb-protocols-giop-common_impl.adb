@@ -72,4 +72,21 @@ package body PolyORB.Protocols.GIOP.Common_Impl is
    --  - GIOP 1.2 uses Target_Address instead, so requires separate implementation
    --  - This reduces 16 LOC of duplication (8 LOC × 2 files)
 
+   -------------------------
+   -- Generic_Initialize --
+   -------------------------
+
+   procedure Generic_Initialize is
+   begin
+      --  Register this GIOP version with the global GIOP registry
+      Global_Register_GIOP_Version (GIOP_Version, New_Implem'Access);
+   end Generic_Initialize;
+
+   --  RDB-005 Phase 2 Extraction Notes:
+   --  - Extracted from GIOP 1.0 (lines 802-804), GIOP 1.1 (lines 861-863),
+   --    and GIOP 1.2 (lines 1743-1745)
+   --  - 99% similar implementation (only version constant differs)
+   --  - Uses generic with version parameter for template method pattern
+   --  - This reduces 12 LOC of duplication (4 LOC × 3 files)
+
 end PolyORB.Protocols.GIOP.Common_Impl;

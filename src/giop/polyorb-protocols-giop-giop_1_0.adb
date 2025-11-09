@@ -798,10 +798,10 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
 
    procedure Initialize;
 
-   procedure Initialize is
-   begin
-      Global_Register_GIOP_Version (GIOP_V1_0, New_Implem'Access);
-   end Initialize;
+   --  RDB-005 Phase 2: Instantiate generic Initialize from Common_Impl
+   procedure Initialize is new Common_Impl.Generic_Initialize
+     (GIOP_Version => GIOP_V1_0,
+      New_Implem   => New_Implem);
 
    use PolyORB.Initialization;
    use PolyORB.Initialization.String_Lists;
