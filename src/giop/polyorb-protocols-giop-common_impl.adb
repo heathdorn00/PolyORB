@@ -69,7 +69,7 @@ package body PolyORB.Protocols.GIOP.Common_Impl is
    --  RDB-005 Extraction Notes:
    --  - Extracted from GIOP 1.0 (lines 771-778) and GIOP 1.1 (lines 831+)
    --  - 100% identical implementation across both versions
-   --  - GIOP 1.2 uses Target_Address instead, so requires separate implementation
+   --  - GIOP 1.2 uses Target_Address, requires separate implementation
    --  - This reduces 16 LOC of duplication (8 LOC × 2 files)
 
 end PolyORB.Protocols.GIOP.Common_Impl;

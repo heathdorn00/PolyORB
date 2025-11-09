@@ -31,7 +31,7 @@
 ------------------------------------------------------------------------------
 
 --  Common implementation utilities for GIOP 1.0, 1.1, and 1.2
---  Extracts duplicate code to reduce maintenance burden and improve consistency
+--  Extracts duplicate code to reduce maintenance burden
 
 --  RDB-005: GIOP Protocol Consolidation
 --  Phase: Week 11 - Foundation (Extract 100% duplicates)
