@@ -44,6 +44,7 @@ with PolyORB.Objects;
 with PolyORB.Obj_Adapters;
 with PolyORB.Protocols.GIOP.Common;
 pragma Elaborate_All (PolyORB.Protocols.GIOP.Common);
+with PolyORB.Protocols.GIOP.Common_Impl;
 with PolyORB.QoS.Service_Contexts;
 with PolyORB.References;
 with PolyORB.Representations.CDR.Common;
@@ -834,8 +835,10 @@ package body PolyORB.Protocols.GIOP.GIOP_1_1 is
       Object_Key : PolyORB.Objects.Object_Id_Access)
    is
    begin
-      Marshall (Buffer, Request_Id);
-      Marshall (Buffer, Stream_Element_Array (Object_Key.all));
+      --  RDB-005: Delegate to common implementation (Week 11, Day 1)
+      --  Extracted duplicate code to Common_Impl module
+      --  Original location: lines 831-838 (8 LOC removed)
+      Common_Impl.Marshall_Locate_Request (Buffer, Request_Id, Object_Key);
    end Marshall_Locate_Request;
 
    ----------------
