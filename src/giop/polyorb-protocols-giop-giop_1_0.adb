@@ -782,18 +782,23 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
    -- New_Implem --
    ----------------
 
-   --  RDB-005 Phase 2: Use generic New_Implem template
-   function New_Implem is new Common_Impl.Generic_New_Implem
-     (Implem_Type => GIOP_Implem_1_0);
+   function New_Implem return GIOP_Implem_Access;
+
+   function New_Implem return GIOP_Implem_Access is
+   begin
+      return new GIOP_Implem_1_0;
+   end New_Implem;
 
    ----------------
    -- Initialize --
    ----------------
 
-   --  RDB-005 Phase 2: Use generic Initialize template
-   procedure Initialize is new Common_Impl.Generic_Initialize
-     (GIOP_Version => GIOP_V1_0,
-      New_Implem   => New_Implem);
+   procedure Initialize;
+
+   procedure Initialize is
+   begin
+      Global_Register_GIOP_Version (GIOP_V1_0, New_Implem'Access);
+   end Initialize;
 
    use PolyORB.Initialization;
    use PolyORB.Initialization.String_Lists;

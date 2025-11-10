@@ -67,27 +67,15 @@ package PolyORB.Protocols.GIOP.Common_Impl is
    --  - polyorb-protocols-giop-giop_1_1.adb (lines 831+)
 
    --  RDB-005 Extraction Phase 2: Template Method Generics
-   --  Target: New_Implem (12 LOC), Logging (18 LOC), Initialize (12 LOC)
-
-   --  Generic New_Implem factory function
-   --  Eliminates duplication: 4 LOC × 3 files = 12 LOC
-   generic
-      type Implem_Type is new GIOP_Implem with private;
-   function Generic_New_Implem return GIOP_Implem_Access;
-
-   --  Generic Initialize procedure
-   --  Eliminates duplication: 4 LOC × 3 files = 12 LOC
-   generic
-      GIOP_Version : Types.Octet;
-      with function New_Implem return GIOP_Implem_Access;
-   procedure Generic_Initialize;
+   --  Target: Logging (18 LOC)
+   --  Note: New_Implem and Initialize cannot be extracted due to Ada
+   --  visibility rules (they reference private types from parent package)
 
    --  Generic Logging Setup package
    --  Eliminates duplication: 6 LOC × 3 files = 18 LOC
    generic
       Version_Suffix : String;
    package Generic_Logging_Setup is
-      pragma Elaborate_Body;
 
       procedure O
         (Message : String;
