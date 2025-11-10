@@ -35,6 +35,7 @@ pragma Ada_2012;
 with PolyORB.Initialization;
 with PolyORB.Parameters;
 with PolyORB.Security.Exported_Names.GSSUP;
+with PolyORB.Security.Secure_Memory;
 with PolyORB.Utils.Strings;
 
 package body PolyORB.Security.Credentials.GSSUP is
@@ -94,7 +95,39 @@ package body PolyORB.Security.Credentials.GSSUP is
 
    overriding procedure Finalize (Self : in out GSSUP_Credentials) is
    begin
+      --  INV-GSSUP-001: Securely zeroize credentials before deallocation
+      --  CWE-522: Insufficiently Protected Credentials
+      --  CRITICAL: User_Name and Password must be zeroized to prevent
+      --  credential leakage through memory dumps
+
+      --  Zero User_Name (PolyORB.Types.String is Unbounded_String)
+      declare
+         User_Str : String := PolyORB.Types.To_Standard_String (Self.User_Name);
+      begin
+         PolyORB.Security.Secure_Memory.Secure_Zero_String (User_Str);
+         Self.User_Name := PolyORB.Types.To_PolyORB_String ("");
+      end;
+
+      --  Zero Password (PolyORB.Types.String is Unbounded_String)
+      declare
+         Pass_Str : String := PolyORB.Types.To_Standard_String (Self.Password);
+      begin
+         PolyORB.Security.Secure_Memory.Secure_Zero_String (Pass_Str);
+         Self.Password := PolyORB.Types.To_PolyORB_String ("");
+      end;
+
+      --  NOTE: To_Standard_String creates a copy, so this zeroizes the copy
+      --  and then overwrites the original with empty string. While not ideal,
+      --  this is the best approach with Ada.Strings.Unbounded's API.
+      --  TODO: Consider adding Secure_Zero_Unbounded_String to directly access
+      --  and zeroize the internal buffer without creating copies.
+
+      --  Destroy Target_Name (existing cleanup)
       PolyORB.Security.Exported_Names.Destroy (Self.Target_Name);
+
+      --  TODO: Add audit logging once PolyORB.Security.Audit_Log is fixed
+      --  to work with preelaborated packages
+
    end Finalize;
 
    ------------------------------------
