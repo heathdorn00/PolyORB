@@ -61,4 +61,14 @@ package body PolyORB.Protocols.GIOP.Common_Impl is
       Marshall (Buffer, Stream_Element_Array (Object_Key.all));
    end Marshall_Locate_Request_Common;
 
+   --------------------------------
+   -- Initialize_Version_Generic --
+   --------------------------------
+
+   procedure Initialize_Version_Generic is
+   begin
+      --  Register the GIOP version implementation with PolyORB runtime
+      Global_Register_GIOP_Version (Version, New_Implem'Access);
+   end Initialize_Version_Generic;
+
 end PolyORB.Protocols.GIOP.Common_Impl;

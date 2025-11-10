@@ -1739,12 +1739,13 @@ package body PolyORB.Protocols.GIOP.GIOP_1_2 is
    -- Initialize --
    ----------------
 
-   procedure Initialize;
+   --  RDB-005 Phase 1: Extracted to Common_Impl generic template (8 LOC reduction)
+   --  Original implementation: 4 LOC (lines 1744-1747)
+   --  Now uses: Generic instantiation with GIOP_V1_2
 
-   procedure Initialize is
-   begin
-      Global_Register_GIOP_Version (GIOP_V1_2, New_Implem'Access);
-   end Initialize;
+   procedure Initialize is new Common_Impl.Initialize_Version_Generic
+     (Version    => GIOP_V1_2,
+      New_Implem => New_Implem);
 
    use PolyORB.Initialization;
    use PolyORB.Initialization.String_Lists;

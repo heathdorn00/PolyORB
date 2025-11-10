@@ -69,4 +69,30 @@ package PolyORB.Protocols.GIOP.Common_Impl is
    --  @param Request_Id: GIOP request identifier
    --  @param Object_Key: Target object key to locate
 
+   ----------------
+   -- Initialize --
+   ----------------
+
+   --  Generic Initialize procedure template for GIOP version registration
+   --
+   --  Extracted from:
+   --    - polyorb-protocols-giop-giop_1_0.adb (lines 804-807)
+   --    - polyorb-protocols-giop-giop_1_1.adb (lines 864-867)
+   --    - polyorb-protocols-giop-giop_1_2.adb (lines 1744-1747)
+   --
+   --  All three implementations are 99% identical, differing only in
+   --  the GIOP version constant passed to Global_Register_GIOP_Version
+
+   generic
+      Version : GIOP_Version;
+      --  GIOP version to register (V1_0, V1_1, or V1_2)
+
+      with function New_Implem return GIOP_Implem_Access;
+      --  Factory function that creates the version-specific implementation
+   procedure Initialize_Version_Generic;
+   --  Register a GIOP version implementation with the PolyORB runtime
+   --
+   --  @param Version: GIOP version constant (GIOP_V1_0, GIOP_V1_1, or GIOP_V1_2)
+   --  @param New_Implem: Factory function for creating the implementation
+
 end PolyORB.Protocols.GIOP.Common_Impl;
