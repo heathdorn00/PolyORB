@@ -33,13 +33,15 @@
 pragma Ada_2012;
 
 with Ada.Streams;
-with Ada.Unchecked_Deallocation;
+with PolyORB.Utils.Unchecked_Deallocation;
 
 with PolyORB.Buffers;
 with PolyORB.Errors;
 with PolyORB.Initialization;
 with PolyORB.QoS.Service_Contexts;
 with PolyORB.Representations.CDR.Common;
+with PolyORB.Security.Audit_Log;
+with PolyORB.Security.Secure_Memory;
 with PolyORB.Utils.Strings;
 
 package body PolyORB.QoS.Security_Contexts is
@@ -87,21 +89,58 @@ package body PolyORB.QoS.Security_Contexts is
    is
 
       procedure Free is
-        new Ada.Unchecked_Deallocation
-        (Ada.Streams.Stream_Element_Array,
-         PolyORB.Security.Types.Stream_Element_Array_Access);
+        new PolyORB.Utils.Unchecked_Deallocation.Free
+
+
+        (Object => Ada.Streams.Stream_Element_Array,
+
+
+         Name   => PolyORB.Security.Types.Stream_Element_Array_Access);
 
    begin
       case QoS.Context_Kind is
          when Establish_Context =>
             Release_Contents (QoS.Authorization_Token);
             Destroy (QoS.Identity_Token);
+            --  INV-CRYPTO-006: Zeroize authentication token before deallocation
+            --  Prevents credential leakage (CWE-316)
+            if QoS.Client_Authentication_Token /= null then
+               PolyORB.Security.Secure_Memory.Secure_Zero
+                 (QoS.Client_Authentication_Token.all);
+               --  INV-AUDIT-001: Audit log CRITICAL crypto buffer deallocation
+               PolyORB.Security.Audit_Log.Audit_Log
+                 (Event     => "Client authentication token deallocated",
+                  Object_ID => "ESTABLISH_CONTEXT",
+                  Severity  => PolyORB.Security.Audit_Log.INFO);
+            end if;
             Free (QoS.Client_Authentication_Token);
 
          when Complete_Establish_Context =>
+            --  INV-CRYPTO-006: Zeroize final context token before deallocation
+            --  Prevents session token leakage (CWE-316)
+            if QoS.Final_Context_Token /= null then
+               PolyORB.Security.Secure_Memory.Secure_Zero
+                 (QoS.Final_Context_Token.all);
+               --  INV-AUDIT-001: Audit log CRITICAL session token deallocation
+               PolyORB.Security.Audit_Log.Audit_Log
+                 (Event     => "Final context token deallocated",
+                  Object_ID => "COMPLETE_ESTABLISH_CONTEXT",
+                  Severity  => PolyORB.Security.Audit_Log.INFO);
+            end if;
             Free (QoS.Final_Context_Token);
 
          when Context_Error =>
+            --  INV-CRYPTO-006: Zeroize error token before deallocation
+            --  Prevents sensitive context leakage (CWE-316)
+            if QoS.Error_Token /= null then
+               PolyORB.Security.Secure_Memory.Secure_Zero
+                 (QoS.Error_Token.all);
+               --  INV-AUDIT-001: Audit log CRITICAL error token deallocation
+               PolyORB.Security.Audit_Log.Audit_Log
+                 (Event     => "Error token deallocated",
+                  Object_ID => "CONTEXT_ERROR",
+                  Severity  => PolyORB.Security.Audit_Log.INFO);
+            end if;
             Free (QoS.Error_Token);
 
          when Message_In_Context =>
