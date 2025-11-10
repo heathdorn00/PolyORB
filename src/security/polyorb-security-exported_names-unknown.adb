@@ -34,9 +34,12 @@ pragma Ada_2012;
 
 with PolyORB.Security.Audit_Log;
 with PolyORB.Security.Secure_Memory;
+with PolyORB.Security.Types;
 with PolyORB.Utils.Unchecked_Deallocation;
 
 package body PolyORB.Security.Exported_Names.Unknown is
+
+   use PolyORB.Security.Types;
 
    ----------------------
    -- Decode_Name_BLOB --
