@@ -66,12 +66,12 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
    use PolyORB.QoS;
    use PolyORB.QoS.Service_Contexts;
 
-   package L is new PolyORB.Log.Facility_Log
-     ("polyorb.protocols.giop.giop_1_0");
+   --  RDB-005 Phase 2: Use generic logging setup template
+   package Logging is new Common_Impl.Generic_Logging_Setup ("1_0");
    procedure O (Message : String; Level : Log_Level := Debug)
-     renames L.Output;
+     renames Logging.O;
    function C (Level : Log_Level := Debug) return Boolean
-     renames L.Enabled;
+     renames Logging.C;
 
    procedure Free is
       new Ada.Unchecked_Deallocation
@@ -772,36 +772,28 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
    procedure Marshall_Locate_Request
      (Buffer     : Buffer_Access;
       Request_Id : Types.Unsigned_Long;
-      Object_Key : PolyORB.Objects.Object_Id_Access)
-   is
+      Object_Key : PolyORB.Objects.Object_Id_Access) is
    begin
-      --  RDB-005: Delegate to common implementation (Week 11, Day 1)
-      --  Extracted duplicate code to Common_Impl module
-      --  Original location: lines 771-778 (8 LOC removed)
-      Common_Impl.Marshall_Locate_Request (Buffer, Request_Id, Object_Key);
+      Marshall (Buffer, Request_Id);
+      Marshall (Buffer, Stream_Element_Array (Object_Key.all));
    end Marshall_Locate_Request;
 
    ----------------
    -- New_Implem --
    ----------------
 
-   function New_Implem return GIOP_Implem_Access;
-
-   function New_Implem return GIOP_Implem_Access is
-   begin
-      return new GIOP_Implem_1_0;
-   end New_Implem;
+   --  RDB-005 Phase 2: Use generic New_Implem template
+   function New_Implem is new Common_Impl.Generic_New_Implem
+     (Implem_Type => GIOP_Implem_1_0);
 
    ----------------
    -- Initialize --
    ----------------
 
-   procedure Initialize;
-
-   procedure Initialize is
-   begin
-      Global_Register_GIOP_Version (GIOP_V1_0, New_Implem'Access);
-   end Initialize;
+   --  RDB-005 Phase 2: Use generic Initialize template
+   procedure Initialize is new Common_Impl.Generic_Initialize
+     (GIOP_Version => GIOP_V1_0,
+      New_Implem   => New_Implem);
 
    use PolyORB.Initialization;
    use PolyORB.Initialization.String_Lists;

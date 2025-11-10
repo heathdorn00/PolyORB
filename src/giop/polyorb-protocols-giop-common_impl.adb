@@ -70,4 +70,56 @@ package body PolyORB.Protocols.GIOP.Common_Impl is
    --  - GIOP 1.2 uses Target_Address, requires separate implementation
    --  - This reduces 16 LOC of duplication (8 LOC × 2 files)
 
+   -------------------------
+   -- Generic_New_Implem --
+   -------------------------
+
+   function Generic_New_Implem return GIOP_Implem_Access is
+   begin
+      return new Implem_Type;
+   end Generic_New_Implem;
+
+   --  RDB-005 Phase 2 Extraction: New_Implem factory (12 LOC)
+   --  Pattern: Create new instance of version-specific implementation type
+   --  Only difference across versions: type name (Implem_Type generic param)
+
+   --------------------------
+   -- Generic_Initialize --
+   --------------------------
+
+   procedure Generic_Initialize is
+   begin
+      Global_Register_GIOP_Version (GIOP_Version, New_Implem'Access);
+   end Generic_Initialize;
+
+   --  RDB-005 Phase 2 Extraction: Initialize procedure (12 LOC)
+   --  Pattern: Register GIOP version with factory function
+   --  Differences: version constant and New_Implem function (generic params)
+
+   ------------------------------
+   -- Generic_Logging_Setup --
+   ------------------------------
+
+   package body Generic_Logging_Setup is
+
+      package L is new PolyORB.Log.Facility_Log
+        ("polyorb.protocols.giop.giop_" & Version_Suffix);
+
+      procedure O
+        (Message : String;
+         Level   : PolyORB.Log.Log_Level := PolyORB.Log.Debug)
+      renames L.Output;
+
+      function C
+        (Level : PolyORB.Log.Log_Level := PolyORB.Log.Debug)
+         return Boolean
+      renames L.Enabled;
+
+   end Generic_Logging_Setup;
+
+   --  RDB-005 Phase 2 Extraction: Logging setup (18 LOC)
+   --  Pattern: Create logging facility with version-specific name
+   --  Only difference: facility name suffix (Version_Suffix generic param)
+   --  Total reduction: 6 LOC × 3 files = 18 LOC
+
 end PolyORB.Protocols.GIOP.Common_Impl;
