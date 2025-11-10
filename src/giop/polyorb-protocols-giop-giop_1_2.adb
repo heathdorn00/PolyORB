@@ -50,6 +50,7 @@ with PolyORB.Opaque;
 with PolyORB.Parameters;
 with PolyORB.Protocols.GIOP.Common;
 pragma Elaborate_All (PolyORB.Protocols.GIOP.Common);
+with PolyORB.Protocols.GIOP.Common_Impl;
 with PolyORB.QoS.Addressing_Modes;
 with PolyORB.QoS.Service_Contexts;
 with PolyORB.QoS.Static_Buffers;
