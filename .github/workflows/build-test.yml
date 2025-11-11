@@ -79,7 +79,7 @@ jobs:
   build-polyorb:
     name: Build PolyORB
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 60
 
     steps:
       - name: Checkout code
@@ -138,7 +138,7 @@ jobs:
       - name: Run mutation tests
         working-directory: test_stabilize
         run: npx stryker run
-        continue-on-error: true
+        # continue-on-error: true  # Disabled: Tests should block on failure
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4

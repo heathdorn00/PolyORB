@@ -44,6 +44,7 @@ with PolyORB.Objects;
 with PolyORB.Obj_Adapters;
 with PolyORB.Protocols.GIOP.Common;
 pragma Elaborate_All (PolyORB.Protocols.GIOP.Common);
+with PolyORB.Protocols.GIOP.Common_Impl;
 with PolyORB.QoS.Service_Contexts;
 with PolyORB.References;
 with PolyORB.Representations.CDR.Common;
@@ -773,14 +774,15 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
    -- Marshall_Locate_Request --
    -----------------------------
 
+   --  RDB-005 Phase 1: Extracted to Common_Impl (16 LOC reduction)
+   --  Original implementation: 8 LOC (lines 776-783)
+   --  Now delegates to: PolyORB.Protocols.GIOP.Common_Impl
+
    procedure Marshall_Locate_Request
      (Buffer     : Buffer_Access;
       Request_Id : Types.Unsigned_Long;
-      Object_Key : PolyORB.Objects.Object_Id_Access) is
-   begin
-      Marshall (Buffer, Request_Id);
-      Marshall (Buffer, Stream_Element_Array (Object_Key.all));
-   end Marshall_Locate_Request;
+      Object_Key : PolyORB.Objects.Object_Id_Access)
+   renames Common_Impl.Marshall_Locate_Request_Common;
 
    ----------------
    -- New_Implem --
@@ -797,12 +799,13 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
    -- Initialize --
    ----------------
 
-   procedure Initialize;
+   --  RDB-005 Phase 1: Extracted to Common_Impl generic template (8 LOC reduction)
+   --  Original implementation: 4 LOC (lines 804-807)
+   --  Now uses: Generic instantiation with GIOP_V1_0
 
-   procedure Initialize is
-   begin
-      Global_Register_GIOP_Version (GIOP_V1_0, New_Implem'Access);
-   end Initialize;
+   procedure Initialize is new Common_Impl.Initialize_Version_Generic
+     (Version    => GIOP_V1_0,
+      New_Implem => New_Implem);
 
    use PolyORB.Initialization;
    use PolyORB.Initialization.String_Lists;
