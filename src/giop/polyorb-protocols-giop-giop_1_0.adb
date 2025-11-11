@@ -773,13 +773,16 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
    -- Marshall_Locate_Request --
    -----------------------------
 
+   --  RDB-005: Tracer bullet - delegate to common implementation
+   --  Extracted duplicate 8 LOC to Common.Marshall_Locate_Request_1_0_1_1
+
    procedure Marshall_Locate_Request
      (Buffer     : Buffer_Access;
       Request_Id : Types.Unsigned_Long;
-      Object_Key : PolyORB.Objects.Object_Id_Access) is
+      Object_Key : PolyORB.Objects.Object_Id_Access)
+   is
    begin
-      Marshall (Buffer, Request_Id);
-      Marshall (Buffer, Stream_Element_Array (Object_Key.all));
+      Common.Marshall_Locate_Request_1_0_1_1 (Buffer, Request_Id, Object_Key);
    end Marshall_Locate_Request;
 
    ----------------

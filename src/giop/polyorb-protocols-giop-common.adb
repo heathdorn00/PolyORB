@@ -1112,4 +1112,25 @@ package body PolyORB.Protocols.GIOP.Common is
       end if;
    end Replace_Marshal_5_To_Inv_Objref_2;
 
+   --------------------------------------
+   -- Marshall_Locate_Request_1_0_1_1 --
+   --------------------------------------
+
+   --  RDB-005: Extracted from GIOP 1.0 and GIOP 1.1 implementations
+   --  This procedure was duplicated in both giop_1_0.adb (lines 776-783)
+   --  and giop_1_1.adb (lines 836-844). The implementations were identical.
+   --  GIOP 1.2 uses a different signature (Target_Address) so it retains
+   --  its own implementation.
+
+   procedure Marshall_Locate_Request_1_0_1_1
+     (Buffer     : PolyORB.Buffers.Buffer_Access;
+      Request_Id : Types.Unsigned_Long;
+      Object_Key : PolyORB.Objects.Object_Id_Access)
+   is
+      use Ada.Streams;
+   begin
+      Marshall (Buffer, Request_Id);
+      Marshall (Buffer, Stream_Element_Array (Object_Key.all));
+   end Marshall_Locate_Request_1_0_1_1;
+
 end PolyORB.Protocols.GIOP.Common;

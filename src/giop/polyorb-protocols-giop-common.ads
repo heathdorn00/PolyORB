@@ -31,6 +31,7 @@
 ------------------------------------------------------------------------------
 
 with PolyORB.Buffers;
+with PolyORB.Objects;
 with PolyORB.References;
 with PolyORB.QoS.Service_Contexts;
 with PolyORB.Types;
@@ -161,5 +162,17 @@ package PolyORB.Protocols.GIOP.Common is
       Buf_Out : PolyORB.Buffers.Buffer_Access;
       Count   : Types.Unsigned_Long);
    --  Copy Count bytes from a buffer to another one
+
+   --  RDB-005: Extracted GIOP 1.0/1.1 common implementation
+   --  This procedure marshals a GIOP 1.0/1.1 Locate Request message.
+   --  GIOP 1.2 uses a different signature with Target_Address.
+
+   procedure Marshall_Locate_Request_1_0_1_1
+     (Buffer     : PolyORB.Buffers.Buffer_Access;
+      Request_Id : Types.Unsigned_Long;
+      Object_Key : PolyORB.Objects.Object_Id_Access);
+   --  Marshall GIOP 1.0/1.1 Locate Request message body
+   --  (Request_Id + Object_Key). Extracted from duplicated code
+   --  in GIOP_1_0 and GIOP_1_1 implementations.
 
 end PolyORB.Protocols.GIOP.Common;
