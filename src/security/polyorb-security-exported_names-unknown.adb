@@ -32,9 +32,14 @@
 
 pragma Ada_2012;
 
-with Ada.Unchecked_Deallocation;
+with PolyORB.Security.Audit_Log;
+with PolyORB.Security.Secure_Memory;
+with PolyORB.Security.Types;
+with PolyORB.Utils.Unchecked_Deallocation;
 
 package body PolyORB.Security.Exported_Names.Unknown is
+
+   use PolyORB.Security.Types;
 
    ----------------------
    -- Decode_Name_BLOB --
@@ -125,11 +130,25 @@ package body PolyORB.Security.Exported_Names.Unknown is
    is
 
       procedure Free is
-        new Ada.Unchecked_Deallocation
-        (Ada.Streams.Stream_Element_Array,
-         PolyORB.Security.Types.Stream_Element_Array_Access);
+        new PolyORB.Utils.Unchecked_Deallocation.Free
+
+
+        (Object => Ada.Streams.Stream_Element_Array,
+
+
+         Name   => PolyORB.Security.Types.Stream_Element_Array_Access);
 
    begin
+      --  INV-CRYPTO-006: Zeroize exported name credential before deallocation
+      --  Prevents credential data leakage (CWE-316)
+      if Item.Name_BLOB /= null then
+         PolyORB.Security.Secure_Memory.Secure_Zero (Item.Name_BLOB.all);
+         --  INV-AUDIT-001: Audit log CRITICAL credential deallocation
+         PolyORB.Security.Audit_Log.Audit_Log
+           (Event     => "Exported name credential deallocated",
+            Object_ID => "UNKNOWN_NAME_BLOB",
+            Severity  => PolyORB.Security.Audit_Log.INFO);
+      end if;
       Free (Item.Name_BLOB);
       Release_Contents (Exported_Name_Type (Item.all)'Access);
    end Release_Contents;

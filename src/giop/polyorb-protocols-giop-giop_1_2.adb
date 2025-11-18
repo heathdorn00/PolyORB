@@ -32,7 +32,7 @@
 
 pragma Ada_2012;
 
-with Ada.Unchecked_Deallocation;
+with PolyORB.Utils.Unchecked_Deallocation;
 
 with PolyORB.Any;
 with PolyORB.Binding_Data.GIOP;
@@ -91,11 +91,13 @@ package body PolyORB.Protocols.GIOP.GIOP_1_2 is
    Permitted_Sync_Scopes : constant PolyORB.Requests.Flags :=
      Sync_None or Sync_With_Transport or Sync_With_Server or Sync_With_Target;
 
-   procedure Free is new Ada.Unchecked_Deallocation
-     (GIOP_1_2_CDR_Representation, GIOP_1_2_CDR_Representation_Access);
+   procedure Free is new PolyORB.Utils.Unchecked_Deallocation.Free
+     (Object => GIOP_1_2_CDR_Representation,
+      Name => GIOP_1_2_CDR_Representation_Access);
 
-   procedure Free is new Ada.Unchecked_Deallocation
-     (Target_Address, Target_Address_Access);
+   procedure Free is new PolyORB.Utils.Unchecked_Deallocation.Free
+     (Object => Target_Address,
+      Name => Target_Address_Access);
 
    --  Msg_Type
 
@@ -1738,12 +1740,13 @@ package body PolyORB.Protocols.GIOP.GIOP_1_2 is
    -- Initialize --
    ----------------
 
-   procedure Initialize;
+   --  RDB-005 Phase 1: Extracted to Common_Impl generic template (8 LOC reduction)
+   --  Original implementation: 4 LOC (lines 1744-1747)
+   --  Now uses: Generic instantiation with GIOP_V1_2
 
-   procedure Initialize is
-   begin
-      Global_Register_GIOP_Version (GIOP_V1_2, New_Implem'Access);
-   end Initialize;
+   procedure Initialize is new Common_Impl.Initialize_Version_Generic
+     (Version    => GIOP_V1_2,
+      New_Implem => New_Implem);
 
    use PolyORB.Initialization;
    use PolyORB.Initialization.String_Lists;

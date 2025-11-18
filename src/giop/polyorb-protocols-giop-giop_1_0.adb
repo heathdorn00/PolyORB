@@ -32,7 +32,7 @@
 
 pragma Ada_2012;
 
-with Ada.Unchecked_Deallocation;
+with PolyORB.Utils.Unchecked_Deallocation;
 
 with PolyORB.Any;
 with PolyORB.Binding_Data.Local;
@@ -74,8 +74,13 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
      renames Logging.C;
 
    procedure Free is
-      new Ada.Unchecked_Deallocation
-     (GIOP_1_0_CDR_Representation, GIOP_1_0_CDR_Representation_Access);
+      new PolyORB.Utils.Unchecked_Deallocation.Free
+
+
+     (Object => GIOP_1_0_CDR_Representation,
+
+
+      Name   => GIOP_1_0_CDR_Representation_Access);
 
    Permitted_Sync_Scopes : constant PolyORB.Requests.Flags :=
      Sync_None or Sync_With_Transport or Sync_With_Target;
@@ -769,14 +774,15 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
    -- Marshall_Locate_Request --
    -----------------------------
 
+   --  RDB-005 Phase 1: Extracted to Common_Impl (16 LOC reduction)
+   --  Original implementation: 8 LOC (lines 776-783)
+   --  Now delegates to: PolyORB.Protocols.GIOP.Common_Impl
+
    procedure Marshall_Locate_Request
      (Buffer     : Buffer_Access;
       Request_Id : Types.Unsigned_Long;
-      Object_Key : PolyORB.Objects.Object_Id_Access) is
-   begin
-      Marshall (Buffer, Request_Id);
-      Marshall (Buffer, Stream_Element_Array (Object_Key.all));
-   end Marshall_Locate_Request;
+      Object_Key : PolyORB.Objects.Object_Id_Access)
+   renames Common_Impl.Marshall_Locate_Request_Common;
 
    ----------------
    -- New_Implem --
@@ -793,12 +799,13 @@ package body PolyORB.Protocols.GIOP.GIOP_1_0 is
    -- Initialize --
    ----------------
 
-   procedure Initialize;
+   --  RDB-005 Phase 1: Extracted to Common_Impl generic template (8 LOC reduction)
+   --  Original implementation: 4 LOC (lines 804-807)
+   --  Now uses: Generic instantiation with GIOP_V1_0
 
-   procedure Initialize is
-   begin
-      Global_Register_GIOP_Version (GIOP_V1_0, New_Implem'Access);
-   end Initialize;
+   procedure Initialize is new Common_Impl.Initialize_Version_Generic
+     (Version    => GIOP_V1_0,
+      New_Implem => New_Implem);
 
    use PolyORB.Initialization;
    use PolyORB.Initialization.String_Lists;
