@@ -14,9 +14,12 @@ add_executable(widget-core-service
     src/main.cpp
 )
 
-target_include_directories(widget-core-service PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
+# Include directories (optional - for future headers)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_include_directories(widget-core-service PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
+endif()
 
 target_link_libraries(widget-core-service PRIVATE
     Threads::Threads

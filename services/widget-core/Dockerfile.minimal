@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 # Copy source
 COPY CMakeLists.txt ./
 COPY src/ ./src/
-COPY include/ ./include/
+# Note: include/ intentionally omitted - minimal stub has no custom headers
 
 # Build
 RUN cmake -B build -DCMAKE_BUILD_TYPE=Release \
