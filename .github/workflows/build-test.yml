@@ -45,6 +45,17 @@ jobs:
             echo "Service directory services/${{ matrix.service }} not found, skipping"
           fi
 
+      - name: Cache APT packages
+        if: steps.check_service.outputs.exists == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+            /var/lib/apt/lists
+          key: apt-cpp-${{ runner.os }}-${{ hashFiles('.github/workflows/build-test.yml') }}
+          restore-keys: |
+            apt-cpp-${{ runner.os }}-
+
       - name: Set up C++ environment
         if: steps.check_service.outputs.exists == 'true'
         run: |
@@ -56,6 +67,17 @@ jobs:
             libgrpc++-dev \
             protobuf-compiler-grpc \
             libboost-all-dev
+
+      - name: Cache CMake build
+        if: steps.check_service.outputs.exists == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            services/${{ matrix.service }}/build
+            ~/.cache/ccache
+          key: cmake-${{ matrix.service }}-${{ runner.os }}-${{ hashFiles(format('services/{0}/**/*.cpp', matrix.service), format('services/{0}/**/*.h', matrix.service), format('services/{0}/CMakeLists.txt', matrix.service)) }}
+          restore-keys: |
+            cmake-${{ matrix.service }}-${{ runner.os }}-
 
       - name: Build ${{ matrix.service }}
         if: steps.check_service.outputs.exists == 'true'
@@ -98,6 +120,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+            /var/lib/apt/lists
+          key: apt-ada-${{ runner.os }}-${{ hashFiles('.github/workflows/build-test.yml') }}
+          restore-keys: |
+            apt-ada-${{ runner.os }}-
+
       - name: Set up Ada environment
         run: |
           sudo apt-get update
@@ -110,6 +142,18 @@ jobs:
             automake \
             libtool \
             libgnatcoll-dev
+
+      - name: Cache PolyORB build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            src/**/*.ali
+            src/**/*.o
+            config.cache
+            config.status
+          key: polyorb-build-${{ runner.os }}-${{ hashFiles('src/**/*.ad[sb]', 'configure.ac') }}
+          restore-keys: |
+            polyorb-build-${{ runner.os }}-
 
       - name: Configure PolyORB
         run: |
@@ -128,6 +172,17 @@ jobs:
           find . -name "*.ali" | head -10
           find . -name "*.o" | head -10
           echo "Phase 1a refactoring validated: All 42 files compiled successfully"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: polyorb-build-artifacts
+          path: |
+            src/**/*.ali
+            src/**/*.o
+            config.log
+          retention-days: 7
+          if-no-files-found: warn
 
   # Job 3: Run Test Suite
   test-suite:
