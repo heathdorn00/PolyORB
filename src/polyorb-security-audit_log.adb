@@ -46,7 +46,10 @@ package body PolyORB.Security.Audit_Log is
    --  Instantiate logging facility for audit
    package L is new PolyORB.Log.Facility_Log ("polyorb.security.audit");
 
-   procedure O (Message : String; Level : PolyORB.Log.Log_Level := PolyORB.Log.Debug) renames L.Output;
+   procedure O
+     (Message : String;
+      Level   : PolyORB.Log.Log_Level := PolyORB.Log.Debug)
+      renames L.Output;
 
    ----------------
    -- Audit_Log --
@@ -61,7 +64,8 @@ package body PolyORB.Security.Audit_Log is
       Severity_Str : constant String := Log_Level'Image (Severity);
    begin
       --  Format: [TIMESTAMP] [SEVERITY] [AUDIT] Event: Object_ID
-      --  Example: [2025-11-07 10:30:15] [INFO] [AUDIT] Crypto key deallocated: KEY_12345
+      --  Example: [2025-11-07 10:30:15] [INFO] [AUDIT]
+      --           Crypto key deallocated: KEY_12345
 
       O ("[" & Timestamp & "] " &
          "[" & Severity_Str & "] " &
@@ -69,7 +73,8 @@ package body PolyORB.Security.Audit_Log is
          PolyORB.Log.Notice);
 
       --  INV-AUDIT-002: Ensure no sensitive data in logs
-      --  Only log identifiers, never key material, credentials, or token values
+      --  Only log identifiers, never key material, credentials,
+      --  or token values
 
    end Audit_Log;
 
@@ -88,7 +93,8 @@ package body PolyORB.Security.Audit_Log is
    begin
       --  Security events are always CRITICAL severity
       --  Example: [2025-11-07 10:30:15] [CRITICAL] [AUDIT]
-      --           Attempted deallocation of active session: SESSION_789 (User: admin)
+      --           Attempted deallocation of active session:
+      --           SESSION_789 (User: admin)
 
       Audit_Log (Full_Event, Object_ID, CRITICAL);
 
