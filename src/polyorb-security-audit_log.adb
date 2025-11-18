@@ -43,6 +43,11 @@ package body PolyORB.Security.Audit_Log is
    use Ada.Calendar;
    use Ada.Calendar.Formatting;
 
+   --  Instantiate logging facility for audit
+   package L is new PolyORB.Log.Facility_Log ("polyorb.security.audit");
+
+   procedure O (Message : String; Level : PolyORB.Log.Log_Level := PolyORB.Log.Debug) renames L.Output;
+
    ----------------
    -- Audit_Log --
    ----------------
@@ -58,8 +63,7 @@ package body PolyORB.Security.Audit_Log is
       --  Format: [TIMESTAMP] [SEVERITY] [AUDIT] Event: Object_ID
       --  Example: [2025-11-07 10:30:15] [INFO] [AUDIT] Crypto key deallocated: KEY_12345
 
-      PolyORB.Log.Output
-        ("[" & Timestamp & "] " &
+      O ("[" & Timestamp & "] " &
          "[" & Severity_Str & "] " &
          "[AUDIT] " & Event & ": " & Object_ID,
          PolyORB.Log.Notice);
