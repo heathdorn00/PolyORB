@@ -36,6 +36,7 @@ with Ada.Streams;
 
 with System.Address_Image;
 
+with PolyORB.Any.CDR;
 with PolyORB.Any.ObjRef;
 with PolyORB.Initialization;
 with PolyORB.Log;
@@ -50,6 +51,7 @@ package body PolyORB.Representations.CDR is
    use Ada.Streams;
 
    use PolyORB.Any;
+   use PolyORB.Any.CDR;
    use PolyORB.Any.TypeCode;
    use PolyORB.Buffers;
    use PolyORB.Errors;
@@ -2256,6 +2258,11 @@ package body PolyORB.Representations.CDR is
                           TypeCode.Length (TC);
                      begin
                         Nb := Unmarshall (Buffer);
+                        --  SEC-001: Validate sequence length against DoS limits
+                        Validate_Sequence_Length (Nb, Error);
+                        if Found (Error) then
+                           return;
+                        end if;
                         if Max_Length > 0 and then Nb > Max_Length then
                            raise Constraint_Error;
                         end if;
