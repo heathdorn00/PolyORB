@@ -51,32 +51,32 @@
 --      (My_Type, My_Type_Access);
 --
 --  Benefits:
---  - Reduces code duplication (74 instances → 1 generic)
+--  - Reduces code duplication (74 instances -> 1 generic)
 --  - Centralizes memory management pattern
 --  - Improves maintainability
 --  - Makes future refactoring easier (e.g., adding debug hooks)
 
-with Ada.Unchecked_Deallocation;
-
 package PolyORB.Utils.Unchecked_Deallocation is
 
-   pragma Preelaborate;
+   pragma Pure;
 
    generic
       type Object (<>) is limited private;
       type Name is access Object;
    procedure Free (X : in out Name);
    pragma Inline (Free);
-   --  Generic deallocation procedure. This is a thin wrapper around
-   --  Ada.Unchecked_Deallocation that provides zero runtime overhead
-   --  (inlined). The generic parameters match the standard
-   --  Ada.Unchecked_Deallocation signature.
+   --  Deallocate the object designated by X and set X to null.
    --
-   --  After instantiation, calling Free(X) will:
-   --  1. Deallocate the object designated by X
-   --  2. Set X to null
+   --  This is a thin wrapper around Ada.Unchecked_Deallocation that provides
+   --  a single point of instantiation for all deallocation operations in
+   --  PolyORB. The behavior is identical to direct use of
+   --  Ada.Unchecked_Deallocation.
    --
-   --  Note: This procedure is unchecked and unsafe. Use with caution.
-   --  Dangling pointers and double-free errors are possible if misused.
+   --  After calling Free(X):
+   --  - The storage for X.all is deallocated
+   --  - X is set to null
+   --
+   --  Note: This is still unchecked deallocation. Dangling pointers and
+   --  double-free errors are possible if misused.
 
 end PolyORB.Utils.Unchecked_Deallocation;

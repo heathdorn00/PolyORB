@@ -92,82 +92,35 @@ package PolyORB.Types is
    --  and the deallocation method for each pointer type
 
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-
-     (Object => Short,
-
-
-      Name   => Short_Ptr);
+     (Object => Short, Name => Short_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Long,
-
-      Name   => Long_Ptr);
+     (Object => Long, Name => Long_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Long_Long,
-
-      Name   => Long_Long_Ptr);
+     (Object => Long_Long, Name => Long_Long_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Unsigned_Short,
-
-      Name   => Unsigned_Short_Ptr);
+     (Object => Unsigned_Short, Name => Unsigned_Short_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Unsigned_Long,
-
-      Name   => Unsigned_Long_Ptr);
+     (Object => Unsigned_Long, Name => Unsigned_Long_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Unsigned_Long_Long,
-
-      Name   => Unsigned_Long_Long_Ptr);
+     (Object => Unsigned_Long_Long, Name => Unsigned_Long_Long_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Float,
-
-      Name   => Float_Ptr);
+     (Object => Float, Name => Float_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Double,
-
-      Name   => Double_Ptr);
+     (Object => Double, Name => Double_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Long_Double,
-
-      Name   => Long_Double_Ptr);
+     (Object => Long_Double, Name => Long_Double_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Char,
-
-      Name   => Char_Ptr);
+     (Object => Char, Name => Char_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Wchar,
-
-      Name   => Wchar_Ptr);
+     (Object => Wchar, Name => Wchar_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Octet,
-
-      Name   => Octet_Ptr);
+     (Object => Octet, Name => Octet_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Boolean,
-
-      Name   => Boolean_Ptr);
+     (Object => Boolean, Name => Boolean_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => String,
-
-      Name   => String_Ptr);
+     (Object => String, Name => String_Ptr);
    procedure Deallocate is new PolyORB.Utils.Unchecked_Deallocation.Free
-
-     (Object => Wide_String,
-
-      Name   => Wide_String_Ptr);
+     (Object => Wide_String, Name => Wide_String_Ptr);
 
    -----------------------------
    -- Trimmed_Image functions --
