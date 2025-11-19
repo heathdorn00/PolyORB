@@ -55,7 +55,7 @@ package body PolyORB.Any is
      renames L.Enabled;
 
    -----------------------
-   -- Local subprograms --
+   --  Local subprograms --
    -----------------------
 
    procedure Free is new PolyORB.Utils.Unchecked_Deallocation.Free
@@ -63,52 +63,52 @@ package body PolyORB.Any is
       Name => Content_Ptr);
 
    procedure Move_Any_Value (Dst_C, Src_C : in out Any_Container'Class);
-   --  Transfer the value of Src_C to Dst_C; Src_C is empty upon return.
-   --  Foreign status is transferred from Src_C to Dst_C. The previous contents
-   --  of Dst_C are deallocated if appropriate.
+   --   Transfer the value of Src_C to Dst_C; Src_C is empty upon return.
+   --   Foreign status is transferred from Src_C to Dst_C. The previous contents
+   --   of Dst_C are deallocated if appropriate.
 
    function Any_Container_Eq
      (TC           : TypeCode.Object_Ptr;
       Left, Right  : Any_Container'Class) return Boolean;
-   --  Test equality between Left and Right, Any containers with type TC.
-   --  Note: the actual typecode set on Left and Right is ignored.
+   --   Test equality between Left and Right, Any containers with type TC.
+   --   Note: the actual typecode set on Left and Right is ignored.
 
    function Agg_Container_Eq
      (TCK          : TCKind;
       TC           : TypeCode.Object_Ptr;
       Left, Right  : Any_Container'Class) return Boolean;
-   --  Helper for Any_Container_Eq, handles the case of aggregates
+   --   Helper for Any_Container_Eq, handles the case of aggregates
 
    type Aggregate_Content_Ptr is access all Aggregate_Content'Class;
 
 
    -------------------
-   -- Accessor_Impl --
+   --  Accessor_Impl --
    -------------------
 
-   --  Nested package containing all accessor implementations
-   --  RDB-004 Task 3: Accessor Extraction Pattern (ADR-005)
+   --   Nested package containing all accessor implementations
+   --   RDB-004 Task 3: Accessor Extraction Pattern (ADR-005)
    --
-   --  This package encapsulates all accessor function implementations for
-   --  the PolyORB.Any module. All public accessors in the parent package
-   --  delegate to this implementation package.
+   --   This package encapsulates all accessor function implementations for
+   --   the PolyORB.Any module. All public accessors in the parent package
+   --   delegate to this implementation package.
    --
-   --  Total public accessors: 109 declarations
-   --    - From_Any functions: 39
-   --        (17 for Any_Container'Class, 19 for Any, 3 for Standard)
-   --    - To_Any functions: 20
-   --    - Set_Any_Value procedures: 20
-   --    - Get_Aggregate functions: 8 (1 count + 7 element accessors)
-   --    - Set_Aggregate procedures: 2 (non-overriding variants)
-   --    - Wrap functions: 19
+   --   Total public accessors: 109 declarations
+   --     - From_Any functions: 39
+   --         (17 for Any_Container'Class, 19 for Any, 3 for Standard)
+   --     - To_Any functions: 20
+   --     - Set_Any_Value procedures: 20
+   --     - Get_Aggregate functions: 8 (1 count + 7 element accessors)
+   --     - Set_Aggregate procedures: 2 (non-overriding variants)
+   --     - Wrap functions: 19
 
    package Accessor_Impl is
 
       ----------------------------------------
-      -- From_Any Functions (39 declarations)
+      --  From_Any Functions (39 declarations)
       ----------------------------------------
 
-      --  From_Any (Any_Container'Class) overloads - 17 declarations
+      --   From_Any (Any_Container'Class) overloads - 17 declarations
 
       function From_Any (C : Any_Container'Class) return Types.Octet;
 
@@ -145,7 +145,7 @@ package body PolyORB.Any is
 
       function From_Any (C : Any_Container'Class) return TypeCode.Local_Ref;
 
-      --  From_Any (Any) overloads - 19 declarations
+      --   From_Any (Any) overloads - 19 declarations
 
       function From_Any (A : Any) return Types.Octet;
 
@@ -186,7 +186,7 @@ package body PolyORB.Any is
       function From_Any
         (A : Any) return Ada.Strings.Wide_Superbounded.Super_String;
 
-      --  From_Any (Standard types) - 3 declarations
+      --   From_Any (Standard types) - 3 declarations
 
       function From_Any (C : Any_Container'Class) return Standard.String;
 
@@ -197,7 +197,7 @@ package body PolyORB.Any is
       function From_Any (A : Any) return Standard.Wide_String;
 
       --------------------------------------
-      -- To_Any Functions (20 declarations)
+      --  To_Any Functions (20 declarations)
       --------------------------------------
 
       function To_Any (X : Types.Octet) return Any;
@@ -247,7 +247,7 @@ package body PolyORB.Any is
       function To_Any (X : Standard.String) return Any;
 
       ------------------------------------------------
-      -- Set_Any_Value Procedures (20 declarations)
+      --  Set_Any_Value Procedures (20 declarations)
       ------------------------------------------------
 
       procedure Set_Any_Value
@@ -333,14 +333,14 @@ package body PolyORB.Any is
          C     : in out Any_Container'Class);
 
       ----------------------------------------------
-      -- Get_Aggregate Functions (8 declarations)
+      --  Get_Aggregate Functions (8 declarations)
       ----------------------------------------------
 
-      --  Get_Aggregate_Count - 1 declaration
+      --   Get_Aggregate_Count - 1 declaration
 
       function Get_Aggregate_Count (Value : Any) return Unsigned_Long;
 
-      --  Get_Aggregate_Element - 7 declarations
+      --   Get_Aggregate_Element - 7 declarations
 
       function Get_Aggregate_Element
         (ACC   : not null access Aggregate_Content'Class;
@@ -382,7 +382,7 @@ package body PolyORB.Any is
          return Types.Octet;
 
       ------------------------------------------------
-      -- Set_Aggregate Procedures (2 declarations)
+      --  Set_Aggregate Procedures (2 declarations)
       ------------------------------------------------
 
       procedure Set_Aggregate_Element
@@ -391,12 +391,12 @@ package body PolyORB.Any is
          Index  : Unsigned_Long;
          From_C : in out Any_Container'Class);
 
-      -- NOTE: Set_Aggregate_Element (Aggregate_Content, Object_Ptr)
-      -- base implementation is NOT in Accessor_Impl - it remains in
-      -- main body as utility function
+      --  NOTE: Set_Aggregate_Element (Aggregate_Content, Object_Ptr)
+      --  base implementation is NOT in Accessor_Impl - it remains in
+      --  main body as utility function
 
       -------------------------------------
-      -- Wrap Functions (19 declarations)
+      --  Wrap Functions (19 declarations)
       -------------------------------------
 
       function Wrap (X : not null access Types.Octet) return Content'Class;
@@ -453,7 +453,7 @@ package body PolyORB.Any is
 
 
    --------------------
-   -- Elementary_Any --
+   --  Elementary_Any --
    --------------------
 
    package body Elementary_Any is
@@ -470,7 +470,7 @@ package body PolyORB.Any is
       pragma Inline (Kind_Check);
 
       -----------
-      -- Clone --
+      --  Clone --
       -----------
 
       overriding function Clone
@@ -486,7 +486,7 @@ package body PolyORB.Any is
       end Clone;
 
       --------------------
-      -- Finalize_Value --
+      --  Finalize_Value --
       --------------------
 
       overriding procedure Finalize_Value (CC : in out T_Content) is
@@ -495,7 +495,7 @@ package body PolyORB.Any is
       end Finalize_Value;
 
       --------------
-      -- From_Any --
+      --  From_Any --
       --------------
 
       function From_Any (C : Any_Container'Class) return T is
@@ -514,7 +514,7 @@ package body PolyORB.Any is
       end From_Any;
 
       ---------------------------
-      -- Get_Aggregate_Element --
+      --  Get_Aggregate_Element --
       ---------------------------
 
       function Get_Aggregate_Element
@@ -532,7 +532,7 @@ package body PolyORB.Any is
       end Get_Aggregate_Element;
 
       ---------------------------
-      -- Get_Aggregate_Element --
+      --  Get_Aggregate_Element --
       ---------------------------
 
       function Get_Aggregate_Element
@@ -544,7 +544,7 @@ package body PolyORB.Any is
       end Get_Aggregate_Element;
 
       ----------------
-      -- Kind_Check --
+      --  Kind_Check --
       ----------------
 
       procedure Kind_Check (C : Any_Container'Class) is
@@ -555,7 +555,7 @@ package body PolyORB.Any is
       end Kind_Check;
 
       -------------------
-      -- Set_Any_Value --
+      --  Set_Any_Value --
       -------------------
 
       procedure Set_Any_Value (X : T; C : in out Any_Container'Class) is
@@ -574,7 +574,7 @@ package body PolyORB.Any is
       end Set_Any_Value;
 
       ------------------------
-      -- Unchecked_From_Any --
+      --  Unchecked_From_Any --
       ------------------------
 
       function Unchecked_From_Any (C : Any_Container'Class) return T is
@@ -583,7 +583,7 @@ package body PolyORB.Any is
       end Unchecked_From_Any;
 
       ---------------------
-      -- Unchecked_Get_V --
+      --  Unchecked_Get_V --
       ---------------------
 
       function Unchecked_Get_V (X : not null access T_Content) return T_Ptr is
@@ -592,7 +592,7 @@ package body PolyORB.Any is
       end Unchecked_Get_V;
 
       ---------------------
-      -- Unchecked_Get_V --
+      --  Unchecked_Get_V --
       ---------------------
 
       overriding function Unchecked_Get_V
@@ -603,7 +603,7 @@ package body PolyORB.Any is
       end Unchecked_Get_V;
 
       ----------
-      -- Wrap --
+      --  Wrap --
       ----------
 
       function Wrap (X : not null access T) return Content'Class is
@@ -614,14 +614,14 @@ package body PolyORB.Any is
    end Elementary_Any;
 
    ------------------------------
-   -- Elementary_Any instances --
+   --  Elementary_Any instances --
    ------------------------------
 
-   --  The following two bodies are needed early for elaboration of
-   --  Elementary_Any instances
+   --   The following two bodies are needed early for elaboration of
+   --   Elementary_Any instances
 
    ----------------
-   -- From_Any_G --
+   --  From_Any_G --
    ----------------
 
    function From_Any_G (A : Any) return T is
@@ -630,7 +630,7 @@ package body PolyORB.Any is
    end From_Any_G;
 
    --------------
-   -- To_Any_G --
+   --  To_Any_G --
    --------------
 
    function To_Any_G (X : T) return Any is
@@ -675,7 +675,7 @@ package body PolyORB.Any is
    package Elementary_Any_Wide_String is
      new Elementary_Any (Types.Wide_String, TypeCode.PTC_Wide_String'Access);
 
-   --  Wrong typecodes used below, should use bounded typecodes???
+   --   Wrong typecodes used below, should use bounded typecodes???
 
    package Elementary_Any_Bounded_String is
      new Elementary_Any (Ada.Strings.Superbounded.Super_String,
@@ -693,18 +693,18 @@ package body PolyORB.Any is
    package body Accessor_Impl is separate;
 
    ---------------------------------
-   -- 'Aggregate' content wrapper --
+   --  'Aggregate' content wrapper --
    ---------------------------------
 
-   --  While an aggregate is constructed, its contents are stored as a
-   --  chained list.
-   --  Once the construction is completed (i.e. the length of the list won't
-   --  grow anymore), the list is converted to an array (to speed up access
-   --  to random elements) and the aggegate is frozen (i.e. no elements can
-   --  be added to it). Actually the freeze occurs the first time an element
-   --  is retrieved through Get_Aggregate_Element.
+   --   While an aggregate is constructed, its contents are stored as a
+   --   chained list.
+   --   Once the construction is completed (i.e. the length of the list won't
+   --   grow anymore), the list is converted to an array (to speed up access
+   --   to random elements) and the aggegate is frozen (i.e. no elements can
+   --   be added to it). Actually the freeze occurs the first time an element
+   --   is retrieved through Get_Aggregate_Element.
 
-   --  A list of Any contents (for construction of aggregates)
+   --   A list of Any contents (for construction of aggregates)
 
    package Content_Tables is new PolyORB.Utils.Dynamic_Tables
      (Table_Component_Type => Any_Container_Ptr,
@@ -714,39 +714,39 @@ package body PolyORB.Any is
       Table_Increment      => 100);
    subtype Content_Table is Content_Tables.Instance;
 
-   --  For complex types that could be defined in IDL, a Aggregate_Content
-   --  will be used.
+   --   For complex types that could be defined in IDL, a Aggregate_Content
+   --   will be used.
    --
-   --  Complex types include Struct, Union, Enum, Sequence, Array, Except,
-   --  Fixed, Value, Valuebox, Abstract_Interface. Here is the way the
-   --  content_list is used in each case (See CORBA V2.3 - 15.3)
+   --   Complex types include Struct, Union, Enum, Sequence, Array, Except,
+   --   Fixed, Value, Valuebox, Abstract_Interface. Here is the way the
+   --   content_list is used in each case (See CORBA V2.3 - 15.3)
 
-   --     - for Struct, Except: the elements are the values of each
-   --       field in the order of the declaration
+   --      - for Struct, Except: the elements are the values of each
+   --        field in the order of the declaration
    --
-   --     - for Union : the value of the switch element comes
-   --       first. Then come all the values of the corresponding fields
+   --      - for Union : the value of the switch element comes
+   --        first. Then come all the values of the corresponding fields
    --
-   --     - for Enum : an unsigned_long corresponding to the position
-   --       of the value in the declaration is the only element
+   --      - for Enum : an unsigned_long corresponding to the position
+   --        of the value in the declaration is the only element
    --
-   --     - for Array : all the elements of the array, one by one.
+   --      - for Array : all the elements of the array, one by one.
    --
-   --     - for Sequence : the length first and then all the elements
-   --       of the sequence, one by one. XXX Can't we get rid of the length?
-   --       it is implicit already in the length of the aggregate
+   --      - for Sequence : the length first and then all the elements
+   --        of the sequence, one by one. XXX Can't we get rid of the length?
+   --        it is implicit already in the length of the aggregate
    --
-   --     - for Fixed : XXX
-   --     - for Value : XXX
-   --     - for Valuebox : XXX
-   --     - for Abstract_Interface : XXX
+   --      - for Fixed : XXX
+   --      - for Value : XXX
+   --      - for Valuebox : XXX
+   --      - for Abstract_Interface : XXX
 
    -------------------------------
-   -- Default_Aggregate_Content --
+   --  Default_Aggregate_Content --
    -------------------------------
 
-   --  Default generic implementation of aggregate content wrapper, based on
-   --  a table of Any_Container accesses.
+   --   Default generic implementation of aggregate content wrapper, based on
+   --   a table of Any_Container accesses.
 
    type Default_Aggregate_Content (Kind : TCKind) is
      new Aggregate_Content with
@@ -754,14 +754,14 @@ package body PolyORB.Any is
       V : Content_Table;
    end record;
 
-   --  Content primitives
+   --   Content primitives
 
    overriding function Clone
      (CC   : Default_Aggregate_Content;
       Into : Content_Ptr := null) return Content_Ptr;
    overriding procedure Finalize_Value (CC : in out Default_Aggregate_Content);
 
-   --  Aggregate_Content primitives
+   --   Aggregate_Content primitives
 
    overriding function Get_Aggregate_Count
      (ACC : Default_Aggregate_Content) return Types.Unsigned_Long;
@@ -788,14 +788,14 @@ package body PolyORB.Any is
 
    function Allocate_Default_Aggregate_Content
      (Kind : TCKind) return Content_Ptr;
-   --  Allocate and initialize a Aggregate_Content. The TCKind is that of the
-   --  aggregate.
+   --   Allocate and initialize a Aggregate_Content. The TCKind is that of the
+   --   aggregate.
 
    procedure Deep_Deallocate (Table : in out Content_Table);
-   --  Deallocate each content element of a content table
+   --   Deallocate each content element of a content table
 
    ---------
-   -- "=" --
+   --  "=" --
    ---------
 
    overriding function "=" (Left, Right : Any) return Boolean is
@@ -809,7 +809,7 @@ package body PolyORB.Any is
    end "=";
 
    ---------------------------
-   -- Add_Aggregate_Element --
+   --  Add_Aggregate_Element --
    ---------------------------
 
    procedure Add_Aggregate_Element
@@ -818,13 +818,13 @@ package body PolyORB.Any is
    is
    begin
 
-      --  This is not supported by default
+      --   This is not supported by default
 
       raise Program_Error;
    end Add_Aggregate_Element;
 
    ---------------------------
-   -- Add_Aggregate_Element --
+   --  Add_Aggregate_Element --
    ---------------------------
 
    overriding procedure Add_Aggregate_Element
@@ -841,7 +841,7 @@ package body PolyORB.Any is
    end Add_Aggregate_Element;
 
    ---------------------------
-   -- Add_Aggregate_Element --
+   --  Add_Aggregate_Element --
    ---------------------------
 
    procedure Add_Aggregate_Element (Value : in out Any; Element : Any) is
@@ -854,7 +854,7 @@ package body PolyORB.Any is
    end Add_Aggregate_Element;
 
    ----------------------------------------
-   -- Allocate_Default_Aggregate_Content --
+   --  Allocate_Default_Aggregate_Content --
    ----------------------------------------
 
    function Allocate_Default_Aggregate_Content
@@ -868,7 +868,7 @@ package body PolyORB.Any is
    end Allocate_Default_Aggregate_Content;
 
    ----------------------
-   -- Agg_Container_Eq --
+   --  Agg_Container_Eq --
    ----------------------
 
    function Agg_Container_Eq
@@ -878,17 +878,17 @@ package body PolyORB.Any is
    is
       L_C : Any_Container;
       R_C : Any_Container;
-      --  Scratch containers for aggregate elements
+      --   Scratch containers for aggregate elements
 
       function Agg_Elements_Equal
         (TC           : TypeCode.Object_Ptr;
          L_ACC, R_ACC : access Aggregate_Content'Class;
          Index        : Types.Unsigned_Long) return Boolean;
-      --  Compare the Index'th element of Left and Right, which are assumed
-      --  to be aggregates. The expected type for both elements is TC.
+      --   Compare the Index'th element of Left and Right, which are assumed
+      --   to be aggregates. The expected type for both elements is TC.
 
       ------------------------
-      -- Agg_Elements_Equal --
+      --  Agg_Elements_Equal --
       ------------------------
 
       function Agg_Elements_Equal
@@ -908,7 +908,7 @@ package body PolyORB.Any is
          return Any_Container_Eq (TC, L_C, R_C);
       end Agg_Elements_Equal;
 
-   --  Start of processing for Agg_Container_Eq
+   --   Start of processing for Agg_Container_Eq
 
    begin
       case TCK is
@@ -1033,7 +1033,7 @@ package body PolyORB.Any is
    end Agg_Container_Eq;
 
    ----------------------
-   -- Any_Container_Eq --
+   --  Any_Container_Eq --
    ----------------------
 
    function Any_Container_Eq
@@ -1308,7 +1308,7 @@ package body PolyORB.Any is
    end Any_Container_Eq;
 
    ---------
-   -- "=" --
+   --  "=" --
    ---------
 
    function "=" (Left, Right : Any_Container'Class) return Boolean is
@@ -1322,7 +1322,7 @@ package body PolyORB.Any is
    end "=";
 
    -----------
-   -- Clone --
+   --  Clone --
    -----------
 
    overriding function Clone
@@ -1333,11 +1333,11 @@ package body PolyORB.Any is
       return null;
    end Clone;
 
-   --  Clone function for Default_Aggregate_Content
-   --  Caveat emptor: this function allocates a new container for each
-   --  element of the aggregate, and sets its value by recursively cloning
-   --  the contents of the original element. It is *extremely* costly! Also,
-   --  it never supports direct in-place assignment.
+   --   Clone function for Default_Aggregate_Content
+   --   Caveat emptor: this function allocates a new container for each
+   --   element of the aggregate, and sets its value by recursively cloning
+   --   the contents of the original element. It is *extremely* costly! Also,
+   --   it never supports direct in-place assignment.
 
    overriding function Clone
      (CC   : Default_Aggregate_Content;
@@ -1375,7 +1375,7 @@ package body PolyORB.Any is
    end Clone;
 
    --------------
-   -- Copy_Any --
+   --  Copy_Any --
    --------------
 
    function Copy_Any (Src : Any) return Any is
@@ -1387,7 +1387,7 @@ package body PolyORB.Any is
    end Copy_Any;
 
    --------------------
-   -- Copy_Any_Value --
+   --  Copy_Any_Value --
    --------------------
 
    procedure Copy_Any_Value
@@ -1648,7 +1648,7 @@ package body PolyORB.Any is
    end Copy_Any_Value;
 
    ---------------------
-   -- Deep_Deallocate --
+   --  Deep_Deallocate --
    ---------------------
 
    procedure Deep_Deallocate (Table : in out Content_Table) is
@@ -1676,7 +1676,7 @@ package body PolyORB.Any is
    end Deep_Deallocate;
 
    --------------
-   -- Finalize --
+   --  Finalize --
    --------------
 
    overriding procedure Finalize (Self : in out Any_Container) is
@@ -1694,7 +1694,7 @@ package body PolyORB.Any is
    end Finalize;
 
    --------------------
-   -- Finalize_Value --
+   --  Finalize_Value --
    --------------------
 
    procedure Finalize_Value (C : in out Any_Container'Class) is
@@ -1703,7 +1703,7 @@ package body PolyORB.Any is
    end Finalize_Value;
 
    --------------------
-   -- Finalize_Value --
+   --  Finalize_Value --
    --------------------
 
    overriding procedure Finalize_Value (CC : in out No_Content) is
@@ -1712,7 +1712,7 @@ package body PolyORB.Any is
    end Finalize_Value;
 
    --------------------
-   -- Finalize_Value --
+   --  Finalize_Value --
    --------------------
 
    overriding procedure Finalize_Value
@@ -1843,10 +1843,10 @@ package body PolyORB.Any is
    function Image (NV : NamedValue) return Standard.String is
       function Flag_Name (F : Flags) return Standard.String;
       pragma Inline (Flag_Name);
-      --  Return string representation for F, which denotes an argument mode
+      --   Return string representation for F, which denotes an argument mode
 
       ---------------
-      -- Flag_Name --
+      --  Flag_Name --
       ---------------
 
       function Flag_Name (F : Flags) return Standard.String is
@@ -1871,7 +1871,7 @@ package body PolyORB.Any is
    end Image;
 
    ----------------------
-   -- Image (typecode) --
+   --  Image (typecode) --
    ----------------------
 
    function Image (TC : TypeCode.Local_Ref) return Standard.String is
@@ -2004,7 +2004,7 @@ package body PolyORB.Any is
    end Image;
 
    -----------------
-   -- Image (Any) --
+   --  Image (Any) --
    -----------------
 
    function Image (A : Any) return Standard.String is
@@ -2013,7 +2013,7 @@ package body PolyORB.Any is
    end Image;
 
    ---------------------------------
-   -- Image (Any_Container'Class) --
+   --  Image (Any_Container'Class) --
    ---------------------------------
 
    function Image (C : Any_Container'Class) return Standard.String is
@@ -2117,7 +2117,7 @@ package body PolyORB.Any is
    end Is_Empty;
 
    --------------
-   -- Is_Empty --
+   --  Is_Empty --
    --------------
 
    function Is_Empty (C : Any_Container'Class) return Boolean is
@@ -2136,7 +2136,7 @@ package body PolyORB.Any is
    end Move_Any_Value;
 
    --------------------
-   -- Move_Any_Value --
+   --  Move_Any_Value --
    --------------------
 
    procedure Move_Any_Value (Dst : Any; Src : Any)
@@ -2195,8 +2195,8 @@ package body PolyORB.Any is
       Content_Tables.Set_Last (ACC.V,
         Content_Tables.First (ACC.V) + Natural (Count) - 1);
 
-      --  Note: there is no default initialization for table elements, so
-      --  make sure here that they are properly initialized to null.
+      --   Note: there is no default initialization for table elements, so
+      --   make sure here that they are properly initialized to null.
 
       for J in Prev_Last + 1 .. Content_Tables.Last (ACC.V) loop
          ACC.V.Table (J) := null;
@@ -2209,9 +2209,9 @@ package body PolyORB.Any is
       From_C : in out Any_Container'Class) is
    begin
 
-      --  By default this is not implemented. This operation must be overridden
-      --  for derived types of Aggregate_Content that may return No_Content
-      --  in Get_Aggregate_Element.
+      --   By default this is not implemented. This operation must be overridden
+      --   for derived types of Aggregate_Content that may return No_Content
+      --   in Get_Aggregate_Element.
 
       raise Program_Error;
 
@@ -2318,8 +2318,8 @@ package body PolyORB.Any is
    is
       pragma Unreferenced (X);
    begin
-      --  By default, content wrappers do not provide direct access to the
-      --  underlying data.
+      --   By default, content wrappers do not provide direct access to the
+      --   underlying data.
 
       return System.Null_Address;
    end Unchecked_Get_V;
@@ -2343,20 +2343,20 @@ package body PolyORB.Any is
    end Unwind_Typedefs;
 
    ----------------------------------------------------------------------------
-   -- Accessor Wrapper Stubs - Delegate to Accessor_Impl
+   --  Accessor Wrapper Stubs - Delegate to Accessor_Impl
    ----------------------------------------------------------------------------
-   --  RDB-004 Task 3: Accessor Extraction Pattern (ADR-005)
+   --   RDB-004 Task 3: Accessor Extraction Pattern (ADR-005)
    --
-   --  These wrapper stubs maintain the existing public API while delegating
-   --  all implementation to the nested Accessor_Impl package.
+   --   These wrapper stubs maintain the existing public API while delegating
+   --   all implementation to the nested Accessor_Impl package.
    --
-   --  Total wrapper stubs: 109 (matching Accessor_Impl package spec 1:1)
+   --   Total wrapper stubs: 109 (matching Accessor_Impl package spec 1:1)
 
    ----------------------------------------
-   -- From_Any Wrapper Stubs (39 functions)
+   --  From_Any Wrapper Stubs (39 functions)
    ----------------------------------------
 
-   --  From_Any (Any_Container'Class) overloads - 17 wrappers
+   --   From_Any (Any_Container'Class) overloads - 17 wrappers
 
    function From_Any (C : Any_Container'Class) return Types.Octet is
    begin
@@ -2444,7 +2444,7 @@ package body PolyORB.Any is
       return Accessor_Impl.From_Any (C);
    end From_Any;
 
-   --  From_Any (Any) overloads - 19 wrappers
+   --   From_Any (Any) overloads - 19 wrappers
 
    function From_Any (A : Any) return Types.Octet is
    begin
@@ -2542,7 +2542,7 @@ package body PolyORB.Any is
       return Accessor_Impl.From_Any (A);
    end From_Any;
 
-   --  From_Any (Standard types) - 3 wrappers
+   --   From_Any (Standard types) - 3 wrappers
 
    function From_Any (C : Any_Container'Class) return Standard.String is
    begin
@@ -2565,7 +2565,7 @@ package body PolyORB.Any is
    end From_Any;
 
    --------------------------------------
-   -- To_Any Wrapper Stubs (20 functions)
+   --  To_Any Wrapper Stubs (20 functions)
    --------------------------------------
 
    function To_Any (X : Types.Octet) return Any is
@@ -2677,7 +2677,7 @@ package body PolyORB.Any is
    end To_Any;
 
    ------------------------------------------------
-   -- Set_Any_Value Wrapper Stubs (20 procedures)
+   --  Set_Any_Value Wrapper Stubs (20 procedures)
    ------------------------------------------------
 
    procedure Set_Any_Value
@@ -2843,17 +2843,17 @@ package body PolyORB.Any is
    end Set_Any_Value;
 
    ----------------------------------------------
-   -- Get_Aggregate Wrapper Stubs (8 functions)
+   --  Get_Aggregate Wrapper Stubs (8 functions)
    ----------------------------------------------
 
-   --  Get_Aggregate_Count - 1 wrapper
+   --   Get_Aggregate_Count - 1 wrapper
 
    function Get_Aggregate_Count (Value : Any) return Unsigned_Long is
    begin
       return Accessor_Impl.Get_Aggregate_Count (Value);
    end Get_Aggregate_Count;
 
-   --  Get_Aggregate_Element - 7 wrappers
+   --   Get_Aggregate_Element - 7 wrappers
 
    function Get_Aggregate_Element
      (ACC   : not null access Aggregate_Content'Class;
@@ -2923,7 +2923,7 @@ package body PolyORB.Any is
    end Get_Aggregate_Element;
 
    ------------------------------------------------
-   -- Set_Aggregate Wrapper Stubs (2 procedures)
+   --  Set_Aggregate Wrapper Stubs (2 procedures)
    ------------------------------------------------
 
    procedure Set_Aggregate_Element
@@ -2937,7 +2937,7 @@ package body PolyORB.Any is
    end Set_Aggregate_Element;
 
    -------------------------------------
-   -- Wrap Wrapper Stubs (19 functions)
+   --  Wrap Wrapper Stubs (19 functions)
    -------------------------------------
 
    function Wrap (X : not null access Types.Octet) return Content'Class is
@@ -3049,12 +3049,12 @@ package body PolyORB.Any is
 
 
    --------------
-   -- TypeCode --
+   --  TypeCode --
    --------------
 
-   --  TypeCode package body extracted to separate compilation unit
-   --  See: src/polyorb-any-typecode.adb
-   --  Extraction performed as part of RDB-004: Decompose polyorb-any God Class
+   --   TypeCode package body extracted to separate compilation unit
+   --   See: src/polyorb-any-typecode.adb
+   --   Extraction performed as part of RDB-004: Decompose polyorb-any God Class
 
    package body TypeCode is separate;
 
