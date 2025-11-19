@@ -35,7 +35,7 @@ separate (PolyORB.Any)
 
 package body Accessor_Impl is
 
-   -- From_Any (Container) renames (lines 1355-1388)
+   --  From_Any (Container) renames (lines 1355-1388)
 
    function From_Any (C : Any_Container'Class) return Types.Octet
                       renames Elementary_Any_Octet.From_Any;
@@ -72,7 +72,7 @@ package body Accessor_Impl is
    function From_Any (C : Any_Container'Class) return TypeCode.Local_Ref
                       renames Elementary_Any_TypeCode.From_Any;
 
-   -- From_Any (Any) renames (lines 1390-1429)
+   --  From_Any (Any) renames (lines 1390-1429)
 
    function From_Any (A : Any) return Types.Octet
                       renames Elementary_Any_Octet.From_Any;
@@ -115,7 +115,7 @@ package body Accessor_Impl is
      (A : Any) return Ada.Strings.Wide_Superbounded.Super_String
      renames Elementary_Any_Bounded_Wide_String.From_Any;
 
-   -- From_Any (Standard.String) full body (lines 1435-1456)
+   --  From_Any (Standard.String) full body (lines 1435-1456)
 
    function From_Any (C : Any_Container'Class) return Standard.String is
       Bound : constant Types.Unsigned_Long :=
@@ -140,7 +140,7 @@ package body Accessor_Impl is
       end if;
    end From_Any;
 
-   -- From_Any (Standard.Wide_String) full body (lines 1458-1480)
+   --  From_Any (Standard.Wide_String) full body (lines 1458-1480)
 
    function From_Any (C : Any_Container'Class) return Standard.Wide_String is
       Bound : constant Types.Unsigned_Long :=
@@ -166,7 +166,7 @@ package body Accessor_Impl is
       end if;
    end From_Any;
 
-   -- From_Any generic instantiations + renames (lines 1482-1489)
+   --  From_Any generic instantiations + renames (lines 1482-1489)
 
    function String_From_Any is new From_Any_G (Standard.String, From_Any);
    function From_Any (A : Any) return Standard.String
@@ -177,7 +177,7 @@ package body Accessor_Impl is
    function From_Any (A : Any) return Standard.Wide_String
                       renames Wide_String_From_Any;
 
-   -- Get_Aggregate_Count (non-overriding) (lines 1495-1501)
+   --  Get_Aggregate_Count (non-overriding) (lines 1495-1501)
 
    function Get_Aggregate_Count (Value : Any) return Unsigned_Long
    is
@@ -187,7 +187,7 @@ package body Accessor_Impl is
       return Get_Aggregate_Count (CA_Ptr.all);
    end Get_Aggregate_Count;
 
-   -- Get_Aggregate_Element (overload 1) (lines 1515-1524)
+   --  Get_Aggregate_Element (overload 1) (lines 1515-1524)
 
    function Get_Aggregate_Element
      (ACC   : not null access Aggregate_Content'Class;
@@ -200,7 +200,7 @@ package body Accessor_Impl is
    end Get_Aggregate_Element;
 
 
-   -- Get_Aggregate_Element (overload 2) (lines 1580-1588)
+   --  Get_Aggregate_Element (overload 2) (lines 1580-1588)
 
    function Get_Aggregate_Element
      (Value : Any;
@@ -212,7 +212,7 @@ package body Accessor_Impl is
    end Get_Aggregate_Element;
 
 
-   -- Get_Aggregate_Element (overload 3) (lines 1589-1614)
+   --  Get_Aggregate_Element (overload 3) (lines 1589-1614)
 
    function Get_Aggregate_Element
      (Value : Any;
@@ -241,7 +241,7 @@ package body Accessor_Impl is
       return A;
    end Get_Aggregate_Element;
 
-   -- Get_Aggregate_Element renames - Unsigned_Long (lines 1616-1624)
+   --  Get_Aggregate_Element renames - Unsigned_Long (lines 1616-1624)
 
    function Get_Aggregate_Element
      (Value : Any;
@@ -253,7 +253,7 @@ package body Accessor_Impl is
       Index : Unsigned_Long) return Types.Unsigned_Long
      renames Elementary_Any_ULong.Get_Aggregate_Element;
 
-   -- Get_Aggregate_Element renames - Octet (lines 1626-1634)
+   --  Get_Aggregate_Element renames - Octet (lines 1626-1634)
 
    function Get_Aggregate_Element
      (Value : Any;
@@ -265,8 +265,8 @@ package body Accessor_Impl is
       Index : Unsigned_Long) return Types.Octet
      renames Elementary_Any_Octet.Get_Aggregate_Element;
 
-   -- Set_Aggregate_Element (non-overriding wrapper)
-   -- For Aggregate_Content'Class (lines 2128-2136)
+   --  Set_Aggregate_Element (non-overriding wrapper)
+   --  For Aggregate_Content'Class (lines 2128-2136)
 
    procedure Set_Aggregate_Element
      (ACC    : in out Aggregate_Content'Class;
@@ -278,7 +278,7 @@ package body Accessor_Impl is
       Set_Aggregate_Element (ACC, TypeCode.Object_Of (TC), Index, From_C);
    end Set_Aggregate_Element;
 
-   -- Set_Any_Value (all 20 procedures) (lines 2221-2294)
+   --  Set_Any_Value (all 20 procedures) (lines 2221-2294)
 
    procedure Set_Any_Value (X : Types.Short;
                             C : in out Any_Container'Class)
@@ -355,7 +355,7 @@ package body Accessor_Impl is
            (X, Max_Length => Bound), C);
    end Set_Any_Value;
 
-   -- To_Any (package, instantiations, implementations) (lines 2358-2498)
+   --  To_Any (package, instantiations, implementations) (lines 2358-2498)
 
    package To_Any_Instances is
       function To_Any is
@@ -499,7 +499,7 @@ package body Accessor_Impl is
       return To_Any (To_PolyORB_String (X));
    end To_Any;
 
-   -- Wrap renames (19 functions) (lines 2542-2601)
+   --  Wrap renames (19 functions) (lines 2542-2601)
 
    function Wrap
      (X : not null access Types.Octet) return Content'Class
