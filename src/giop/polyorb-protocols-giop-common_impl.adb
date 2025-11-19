@@ -46,11 +46,11 @@ package body PolyORB.Protocols.GIOP.Common_Impl is
    use PolyORB.Objects;
    use PolyORB.Representations.CDR.Common;
 
-   -------------------------------
-   -- Marshall_Locate_Request --
-   -------------------------------
+   --------------------------------------
+   -- Marshall_Locate_Request_Common --
+   --------------------------------------
 
-   procedure Marshall_Locate_Request
+   procedure Marshall_Locate_Request_Common
      (Buffer     : Buffers.Buffer_Access;
       Request_Id : Types.Unsigned_Long;
       Object_Key : Objects.Object_Id_Access)
@@ -62,7 +62,7 @@ package body PolyORB.Protocols.GIOP.Common_Impl is
       --  Marshall Object Key as Stream_Element_Array
       Marshall (Buffer, Stream_Element_Array (Object_Key.all));
 
-   end Marshall_Locate_Request;
+   end Marshall_Locate_Request_Common;
 
    --  RDB-005 Extraction Notes:
    --  - Extracted from GIOP 1.0 (lines 771-778) and GIOP 1.1 (lines 831+)
