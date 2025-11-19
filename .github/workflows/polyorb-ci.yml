@@ -44,7 +44,8 @@ jobs:
         # -gnatVa: All validity checks
         # -gnato: Overflow checking
         # -fstack-check: Stack overflow detection
-        STRICT_FLAGS="-gnatVa -gnato -fstack-check -gnatwa"
+        # -gnatc: Syntax check only (no code generation)
+        STRICT_FLAGS="-gnatVa -gnato -fstack-check -gnatwa -gnatc"
 
         echo "Checking core modules with strict flags: $STRICT_FLAGS"
 
@@ -218,7 +219,8 @@ jobs:
         echo "🔒 Validating build with GNAT strict checking flags..."
 
         # Compile key modules with strict flags
-        STRICT_FLAGS="-gnatVa -gnato -fstack-check -gnatwa"
+        # -gnatc: Syntax check only (no code generation)
+        STRICT_FLAGS="-gnatVa -gnato -fstack-check -gnatwa -gnatc"
 
         # Validate core Any modules
         for file in src/polyorb-any.ads src/polyorb-any.adb; do
