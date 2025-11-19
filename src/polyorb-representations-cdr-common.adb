@@ -627,12 +627,13 @@ package body PolyORB.Representations.CDR.Common is
      (Buffer : access Buffer_Type)
      return Standard.String
    is
-      Length : constant PolyORB.Types.Unsigned_Long
-        := Unmarshall (Buffer);
-      Equiv  : String (1 .. Natural (Length) - 1);
-
+      Length : PolyORB.Types.Unsigned_Long;
    begin
       pragma Debug (C, O ("Unmarshall (String): enter"));
+
+      --  Read length from buffer
+      Length := Unmarshall (Buffer);
+
       pragma Debug (C, O ("Unmarshall (String): length is " &
                     PolyORB.Types.Unsigned_Long'Image (Length)));
 
@@ -640,21 +641,32 @@ package body PolyORB.Representations.CDR.Common is
          return "";
       end if;
 
-      for J in Equiv'Range loop
-         Equiv (J) := Character'Val
-           (PolyORB.Types.Char'Pos (Unmarshall_Latin_1_Char (Buffer)));
-      end loop;
+      --  SEC-001: Validate length before allocation
+      Validate_Length (Length, MAX_STRING_LENGTH, "Unmarshall_Latin_1_String");
 
-      if Character'Val
-           (PolyORB.Types.Char'Pos (Unmarshall_Latin_1_Char (Buffer)))
-        /= ASCII.NUL
-      then
-         raise Constraint_Error;
-      end if;
+      --  SEC-001: Check buffer has sufficient data (length + null terminator)
+      Check_Remaining (Buffer, Stream_Element_Offset (Length));
 
-      pragma Debug (C, O ("Unmarshall (String): -> " & Equiv));
+      --  Safe to allocate now
+      declare
+         Equiv : String (1 .. Natural (Length) - 1);
+      begin
+         for J in Equiv'Range loop
+            Equiv (J) := Character'Val
+              (PolyORB.Types.Char'Pos (Unmarshall_Latin_1_Char (Buffer)));
+         end loop;
 
-      return Equiv;
+         if Character'Val
+              (PolyORB.Types.Char'Pos (Unmarshall_Latin_1_Char (Buffer)))
+           /= ASCII.NUL
+         then
+            raise Constraint_Error;
+         end if;
+
+         pragma Debug (C, O ("Unmarshall (String): -> " & Equiv));
+
+         return Equiv;
+      end;
    end Unmarshall_Latin_1_String;
 
    function Unmarshall_Latin_1_String
@@ -862,5 +874,69 @@ package body PolyORB.Representations.CDR.Common is
       end Octets_To_Fixed;
 
    end Fixed_Point;
+
+   ------------------------------------------------------------------
+   -- SEC-001: Buffer Overflow Prevention Security Validation      --
+   ------------------------------------------------------------------
+
+   ---------------------
+   -- Validate_Length --
+   ---------------------
+
+   procedure Validate_Length
+     (Length  : PolyORB.Types.Unsigned_Long;
+      Max     : PolyORB.Types.Unsigned_Long;
+      Context : String)
+   is
+   begin
+      if Length > Max then
+         pragma Debug
+           (O ("SEC-001: Length validation failed in " & Context &
+               ", got" & Length'Image & ", max" & Max'Image));
+         raise CDR_Validation_Failed with
+           Context & ": Length" & Length'Image &
+           " exceeds maximum" & Max'Image;
+      end if;
+   end Validate_Length;
+
+   ---------------------
+   -- Check_Remaining --
+   ---------------------
+
+   procedure Check_Remaining
+     (Buffer   : access Buffer_Type;
+      Required : Stream_Element_Offset)
+   is
+      use PolyORB.Buffers;
+      Available : constant Stream_Element_Offset :=
+        Length (Buffer.all) - CDR_Position (Buffer);
+   begin
+      if Available < Required then
+         pragma Debug
+           (O ("SEC-001: Buffer underflow, need" & Required'Image &
+               " bytes, have" & Available'Image));
+         raise CDR_Buffer_Underflow with
+           "Need" & Required'Image & " bytes, have" & Available'Image;
+      end if;
+   end Check_Remaining;
+
+   -------------------------
+   -- Check_Nesting_Depth --
+   -------------------------
+
+   procedure Check_Nesting_Depth
+     (Depth   : Natural;
+      Context : String)
+   is
+   begin
+      if Depth > MAX_NESTING_DEPTH then
+         pragma Debug
+           (O ("SEC-001: Nesting depth exceeded in " & Context &
+               ", depth" & Depth'Image));
+         raise CDR_Nesting_Exceeded with
+           Context & ": Nesting depth" & Depth'Image &
+           " exceeds maximum" & MAX_NESTING_DEPTH'Image;
+      end if;
+   end Check_Nesting_Depth;
 
 end PolyORB.Representations.CDR.Common;

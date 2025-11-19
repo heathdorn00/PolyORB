@@ -376,4 +376,38 @@ package PolyORB.Representations.CDR.Common is
      (Buffer : access Buffer_Type)
       return Standard.String;
 
+   ------------------------------------------------------------------
+   -- SEC-001: Buffer Overflow Prevention Security Validation      --
+   -- CWE-120 Prevention, OWASP A03:2021                           --
+   ------------------------------------------------------------------
+
+   --  Security limits for CDR operations
+   MAX_CDR_BUFFER_SIZE : constant := 10_485_760;  -- 10 MB
+   MAX_STRING_LENGTH   : constant := 1_048_576;   -- 1 MB
+   MAX_SEQUENCE_LENGTH : constant := 1_000_000;   -- 1M elements
+   MAX_ARRAY_DIMENSION : constant := 10_000;      -- Per dimension
+   MAX_NESTING_DEPTH   : constant := 32;          -- Nested types
+
+   --  Security exceptions
+   CDR_Validation_Failed : exception;
+   CDR_Buffer_Underflow  : exception;
+   CDR_Nesting_Exceeded  : exception;
+   CDR_Allocation_Failed : exception;
+
+   --  SR-002: Validate length before allocation
+   procedure Validate_Length
+     (Length  : PolyORB.Types.Unsigned_Long;
+      Max     : PolyORB.Types.Unsigned_Long;
+      Context : String);
+
+   --  SR-003: Check buffer has sufficient remaining data
+   procedure Check_Remaining
+     (Buffer   : access Buffer_Type;
+      Required : Stream_Element_Offset);
+
+   --  SR-004: Validate nesting depth
+   procedure Check_Nesting_Depth
+     (Depth   : Natural;
+      Context : String);
+
 end PolyORB.Representations.CDR.Common;
