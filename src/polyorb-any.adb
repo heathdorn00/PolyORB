@@ -81,6 +81,377 @@ package body PolyORB.Any is
 
    type Aggregate_Content_Ptr is access all Aggregate_Content'Class;
 
+
+   -------------------
+   -- Accessor_Impl --
+   -------------------
+
+   --  Nested package containing all accessor implementations
+   --  RDB-004 Task 3: Accessor Extraction Pattern (ADR-005)
+   --
+   --  This package encapsulates all accessor function implementations for
+   --  the PolyORB.Any module. All public accessors in the parent package
+   --  delegate to this implementation package.
+   --
+   --  Total public accessors: 109 declarations
+   --    - From_Any functions: 39
+   --        (17 for Any_Container'Class, 19 for Any, 3 for Standard)
+   --    - To_Any functions: 20
+   --    - Set_Any_Value procedures: 20
+   --    - Get_Aggregate functions: 8 (1 count + 7 element accessors)
+   --    - Set_Aggregate procedures: 2 (non-overriding variants)
+   --    - Wrap functions: 19
+
+   package Accessor_Impl is
+
+      ----------------------------------------
+      -- From_Any Functions (39 declarations)
+      ----------------------------------------
+
+      --  From_Any (Any_Container'Class) overloads - 17 declarations
+
+      function From_Any (C : Any_Container'Class) return Types.Octet;
+
+      function From_Any (C : Any_Container'Class) return Types.Short;
+
+      function From_Any (C : Any_Container'Class) return Types.Long;
+
+      function From_Any (C : Any_Container'Class) return Types.Long_Long;
+
+      function From_Any (C : Any_Container'Class) return Types.Unsigned_Short;
+
+      function From_Any (C : Any_Container'Class) return Types.Unsigned_Long;
+
+      function From_Any
+        (C : Any_Container'Class) return Types.Unsigned_Long_Long;
+
+      function From_Any (C : Any_Container'Class) return Types.Boolean;
+
+      function From_Any (C : Any_Container'Class) return Types.Char;
+
+      function From_Any (C : Any_Container'Class) return Types.Wchar;
+
+      function From_Any (C : Any_Container'Class) return Types.Float;
+
+      function From_Any (C : Any_Container'Class) return Types.Double;
+
+      function From_Any (C : Any_Container'Class) return Types.Long_Double;
+
+      function From_Any (C : Any_Container'Class) return Types.String;
+
+      function From_Any (C : Any_Container'Class) return Types.Wide_String;
+
+      function From_Any (C : Any_Container'Class) return Any;
+
+      function From_Any (C : Any_Container'Class) return TypeCode.Local_Ref;
+
+      --  From_Any (Any) overloads - 19 declarations
+
+      function From_Any (A : Any) return Types.Octet;
+
+      function From_Any (A : Any) return Types.Short;
+
+      function From_Any (A : Any) return Types.Long;
+
+      function From_Any (A : Any) return Types.Long_Long;
+
+      function From_Any (A : Any) return Types.Unsigned_Short;
+
+      function From_Any (A : Any) return Types.Unsigned_Long;
+
+      function From_Any (A : Any) return Types.Unsigned_Long_Long;
+
+      function From_Any (A : Any) return Types.Boolean;
+
+      function From_Any (A : Any) return Types.Char;
+
+      function From_Any (A : Any) return Types.Wchar;
+
+      function From_Any (A : Any) return Types.Float;
+
+      function From_Any (A : Any) return Types.Double;
+
+      function From_Any (A : Any) return Types.Long_Double;
+
+      function From_Any (A : Any) return Types.String;
+
+      function From_Any (A : Any) return Types.Wide_String;
+
+      function From_Any (A : Any) return Any;
+
+      function From_Any (A : Any) return TypeCode.Local_Ref;
+
+      function From_Any (A : Any) return Ada.Strings.Superbounded.Super_String;
+
+      function From_Any
+        (A : Any) return Ada.Strings.Wide_Superbounded.Super_String;
+
+      --  From_Any (Standard types) - 3 declarations
+
+      function From_Any (C : Any_Container'Class) return Standard.String;
+
+      function From_Any (C : Any_Container'Class) return Standard.Wide_String;
+
+      function From_Any (A : Any) return Standard.String;
+
+      function From_Any (A : Any) return Standard.Wide_String;
+
+      --------------------------------------
+      -- To_Any Functions (20 declarations)
+      --------------------------------------
+
+      function To_Any (X : Types.Octet) return Any;
+
+      function To_Any (X : Types.Short) return Any;
+
+      function To_Any (X : Types.Long) return Any;
+
+      function To_Any (X : Types.Long_Long) return Any;
+
+      function To_Any (X : Types.Unsigned_Short) return Any;
+
+      function To_Any (X : Types.Unsigned_Long) return Any;
+
+      function To_Any (X : Types.Unsigned_Long_Long) return Any;
+
+      function To_Any (X : Types.Boolean) return Any;
+
+      function To_Any (X : Types.Char) return Any;
+
+      function To_Any (X : Types.Wchar) return Any;
+
+      function To_Any (X : Types.Float) return Any;
+
+      function To_Any (X : Types.Double) return Any;
+
+      function To_Any (X : Types.Long_Double) return Any;
+
+      function To_Any (X : Types.String) return Any;
+
+      function To_Any (X : Types.Wide_String) return Any;
+
+      function To_Any (X : Any) return Any;
+
+      function To_Any (X : TypeCode.Local_Ref) return Any;
+
+      function To_Any
+        (X  : Ada.Strings.Superbounded.Super_String;
+         TC : access function return TypeCode.Local_Ref)
+         return Any;
+
+      function To_Any
+        (X  : Ada.Strings.Wide_Superbounded.Super_String;
+         TC : access function return TypeCode.Local_Ref)
+         return Any;
+
+      function To_Any (X : Standard.String) return Any;
+
+      ------------------------------------------------
+      -- Set_Any_Value Procedures (20 declarations)
+      ------------------------------------------------
+
+      procedure Set_Any_Value
+        (X : Types.Short;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Long;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Long_Long;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Unsigned_Short;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Unsigned_Long;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Unsigned_Long_Long;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Float;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Double;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Long_Double;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Boolean;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Char;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Wchar;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Octet;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Any;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : TypeCode.Local_Ref;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.String;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Types.Wide_String;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X : Standard.String;
+         C : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X     : String;
+         Bound : Positive;
+         C     : in out Any_Container'Class);
+
+      procedure Set_Any_Value
+        (X     : Wide_String;
+         Bound : Positive;
+         C     : in out Any_Container'Class);
+
+      ----------------------------------------------
+      -- Get_Aggregate Functions (8 declarations)
+      ----------------------------------------------
+
+      --  Get_Aggregate_Count - 1 declaration
+
+      function Get_Aggregate_Count (Value : Any) return Unsigned_Long;
+
+      --  Get_Aggregate_Element - 7 declarations
+
+      function Get_Aggregate_Element
+        (ACC   : not null access Aggregate_Content'Class;
+         TC    : TypeCode.Local_Ref;
+         Index : Unsigned_Long;
+         Mech  : not null access Mechanism)
+         return Content'Class;
+
+      function Get_Aggregate_Element
+        (Value : Any;
+         TC    : TypeCode.Local_Ref;
+         Index : Unsigned_Long)
+         return Any;
+
+      function Get_Aggregate_Element
+        (Value : Any;
+         TC    : TypeCode.Object_Ptr;
+         Index : Unsigned_Long)
+         return Any;
+
+      function Get_Aggregate_Element
+        (Value : Any;
+         Index : Unsigned_Long)
+         return Types.Unsigned_Long;
+
+      function Get_Aggregate_Element
+        (Value : Any_Container'Class;
+         Index : Unsigned_Long)
+         return Types.Unsigned_Long;
+
+      function Get_Aggregate_Element
+        (Value : Any;
+         Index : Unsigned_Long)
+         return Types.Octet;
+
+      function Get_Aggregate_Element
+        (Value : Any_Container'Class;
+         Index : Unsigned_Long)
+         return Types.Octet;
+
+      ------------------------------------------------
+      -- Set_Aggregate Procedures (2 declarations)
+      ------------------------------------------------
+
+      procedure Set_Aggregate_Element
+        (ACC    : in out Aggregate_Content'Class;
+         TC     : TypeCode.Local_Ref;
+         Index  : Unsigned_Long;
+         From_C : in out Any_Container'Class);
+
+      -- NOTE: Set_Aggregate_Element (Aggregate_Content, Object_Ptr)
+      -- base implementation is NOT in Accessor_Impl - it remains in
+      -- main body as utility function
+
+      -------------------------------------
+      -- Wrap Functions (19 declarations)
+      -------------------------------------
+
+      function Wrap (X : not null access Types.Octet) return Content'Class;
+
+      function Wrap (X : not null access Types.Short) return Content'Class;
+
+      function Wrap (X : not null access Types.Long) return Content'Class;
+
+      function Wrap (X : not null access Types.Long_Long) return Content'Class;
+
+      function Wrap
+        (X : not null access Types.Unsigned_Short) return Content'Class;
+
+      function Wrap
+        (X : not null access Types.Unsigned_Long) return Content'Class;
+
+      function Wrap
+        (X : not null access Types.Unsigned_Long_Long)
+         return Content'Class;
+
+      function Wrap (X : not null access Types.Boolean) return Content'Class;
+
+      function Wrap (X : not null access Types.Char) return Content'Class;
+
+      function Wrap (X : not null access Types.Wchar) return Content'Class;
+
+      function Wrap (X : not null access Types.Float) return Content'Class;
+
+      function Wrap (X : not null access Types.Double) return Content'Class;
+
+      function Wrap
+        (X : not null access Types.Long_Double) return Content'Class;
+
+      function Wrap
+        (X : not null access Types.String) return Content'Class;
+
+      function Wrap
+        (X : not null access Types.Wide_String) return Content'Class;
+
+      function Wrap (X : not null access Any) return Content'Class;
+
+      function Wrap
+        (X : not null access TypeCode.Local_Ref) return Content'Class;
+
+      function Wrap
+        (X : not null access Ada.Strings.Superbounded.Super_String)
+         return Content'Class;
+
+      function Wrap
+        (X : not null access Ada.Strings.Wide_Superbounded.Super_String)
+         return Content'Class;
+
+   end Accessor_Impl;
+
+
    --------------------
    -- Elementary_Any --
    --------------------
@@ -242,6 +613,10 @@ package body PolyORB.Any is
 
    end Elementary_Any;
 
+   ------------------------------
+   -- Elementary_Any instances --
+   ------------------------------
+
    --  The following two bodies are needed early for elaboration of
    --  Elementary_Any instances
 
@@ -265,10 +640,6 @@ package body PolyORB.Any is
          Set_Any_Value (X, Get_Container (A).all);
       end return;
    end To_Any_G;
-
-   ------------------------------
-   -- Elementary_Any instances --
-   ------------------------------
 
    package Elementary_Any_Octet is
      new Elementary_Any (Types.Octet, TypeCode.PTC_Octet'Access);
@@ -317,6 +688,9 @@ package body PolyORB.Any is
      new Elementary_Any (Any, TypeCode.PTC_Any'Access);
    package Elementary_Any_TypeCode is
      new Elementary_Any (TypeCode.Local_Ref, TypeCode.PTC_TypeCode'Access);
+
+
+   package body Accessor_Impl is separate;
 
    ---------------------------------
    -- 'Aggregate' content wrapper --
@@ -1348,158 +1722,6 @@ package body PolyORB.Any is
       Deep_Deallocate (CC.V);
    end Finalize_Value;
 
-   --------------
-   -- From_Any --
-   --------------
-
-   function From_Any (C : Any_Container'Class) return Types.Octet
-                      renames Elementary_Any_Octet.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Short
-                      renames Elementary_Any_Short.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Long
-                      renames Elementary_Any_Long.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Long_Long
-                      renames Elementary_Any_Long_Long.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Unsigned_Short
-                      renames Elementary_Any_UShort.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Unsigned_Long
-                      renames Elementary_Any_ULong.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Unsigned_Long_Long
-                      renames Elementary_Any_ULong_Long.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Boolean
-                      renames Elementary_Any_Boolean.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Char
-                      renames Elementary_Any_Char.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Wchar
-                      renames Elementary_Any_Wchar.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Float
-                      renames Elementary_Any_Float.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Double
-                      renames Elementary_Any_Double.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Long_Double
-                      renames Elementary_Any_Long_Double.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.String
-                      renames Elementary_Any_String.From_Any;
-   function From_Any (C : Any_Container'Class) return Types.Wide_String
-                      renames Elementary_Any_Wide_String.From_Any;
-   function From_Any (C : Any_Container'Class) return Any
-                      renames Elementary_Any_Any.From_Any;
-   function From_Any (C : Any_Container'Class) return TypeCode.Local_Ref
-                      renames Elementary_Any_TypeCode.From_Any;
-
-   function From_Any (A : Any) return Types.Octet
-                      renames Elementary_Any_Octet.From_Any;
-   function From_Any (A : Any) return Types.Short
-                      renames Elementary_Any_Short.From_Any;
-   function From_Any (A : Any) return Types.Long
-                      renames Elementary_Any_Long.From_Any;
-   function From_Any (A : Any) return Types.Long_Long
-                      renames Elementary_Any_Long_Long.From_Any;
-   function From_Any (A : Any) return Types.Unsigned_Short
-                      renames Elementary_Any_UShort.From_Any;
-   function From_Any (A : Any) return Types.Unsigned_Long
-                      renames Elementary_Any_ULong.From_Any;
-   function From_Any (A : Any) return Types.Unsigned_Long_Long
-                      renames Elementary_Any_ULong_Long.From_Any;
-   function From_Any (A : Any) return Types.Boolean
-                      renames Elementary_Any_Boolean.From_Any;
-   function From_Any (A : Any) return Types.Char
-                      renames Elementary_Any_Char.From_Any;
-   function From_Any (A : Any) return Types.Wchar
-                      renames Elementary_Any_Wchar.From_Any;
-   function From_Any (A : Any) return Types.Float
-                      renames Elementary_Any_Float.From_Any;
-   function From_Any (A : Any) return Types.Double
-                      renames Elementary_Any_Double.From_Any;
-   function From_Any (A : Any) return Types.Long_Double
-                      renames Elementary_Any_Long_Double.From_Any;
-   function From_Any (A : Any) return Types.String
-                      renames Elementary_Any_String.From_Any;
-   function From_Any (A : Any) return Types.Wide_String
-                      renames Elementary_Any_Wide_String.From_Any;
-   function From_Any (A : Any) return Any
-                      renames Elementary_Any_Any.From_Any;
-   function From_Any (A : Any) return TypeCode.Local_Ref
-                      renames Elementary_Any_TypeCode.From_Any;
-   function From_Any
-     (A : Any) return Ada.Strings.Superbounded.Super_String
-     renames Elementary_Any_Bounded_String.From_Any;
-   function From_Any
-     (A : Any) return Ada.Strings.Wide_Superbounded.Super_String
-     renames Elementary_Any_Bounded_Wide_String.From_Any;
-
-   ------------------------
-   -- From_Any (strings) --
-   ------------------------
-
-   function From_Any (C : Any_Container'Class) return Standard.String is
-      Bound : constant Types.Unsigned_Long :=
-        TypeCode.Length (Unwind_Typedefs (Get_Type_Obj (C)));
-   begin
-      if Bound = 0 then
-
-         --  Unbounded case
-         --  Use unchecked access to underlying Types.String to avoid
-         --  a costly Adjust.
-
-         return To_Standard_String
-           (Elementary_Any_String.Unchecked_Get_V
-            (Elementary_Any_String.T_Content (C.The_Value.all)'Access).all);
-
-      else
-
-         --  Bounded case
-
-         return Ada.Strings.Superbounded.Super_To_String
-           (Elementary_Any_Bounded_String.From_Any (C));
-      end if;
-   end From_Any;
-
-   function From_Any (C : Any_Container'Class) return Standard.Wide_String is
-      Bound : constant Types.Unsigned_Long :=
-        TypeCode.Length (Unwind_Typedefs (Get_Type_Obj (C)));
-   begin
-      if Bound = 0 then
-
-         --  Unbounded case
-         --  Use unchecked access to underlying Types.String to avoid
-         --  a costly Adjust.
-
-         return To_Wide_String
-           (Elementary_Any_Wide_String.Unchecked_Get_V
-            (Elementary_Any_Wide_String.T_Content
-             (C.The_Value.all)'Access).all);
-
-      else
-
-         --  Bounded case
-
-         return Ada.Strings.Wide_Superbounded.Super_To_String
-           (Elementary_Any_Bounded_Wide_String.From_Any (C));
-      end if;
-   end From_Any;
-
-   function String_From_Any is new From_Any_G (Standard.String, From_Any);
-   function From_Any (A : Any) return Standard.String
-                      renames String_From_Any;
-
-   function Wide_String_From_Any is
-     new From_Any_G (Standard.Wide_String, From_Any);
-   function From_Any (A : Any) return Standard.Wide_String
-                      renames Wide_String_From_Any;
-
-   -------------------------
-   -- Get_Aggregate_Count --
-   -------------------------
-
-   function Get_Aggregate_Count (Value : Any) return Unsigned_Long
-   is
-      CA_Ptr : constant Aggregate_Content_Ptr :=
-        Aggregate_Content_Ptr (Get_Value (Get_Container (Value).all));
-   begin
-      return Get_Aggregate_Count (CA_Ptr.all);
-   end Get_Aggregate_Count;
-
    overriding function Get_Aggregate_Count
      (ACC : Default_Aggregate_Content) return Unsigned_Long
    is
@@ -1507,21 +1729,6 @@ package body PolyORB.Any is
       return Unsigned_Long
         (Content_Tables.Last (ACC.V) - Content_Tables.First (ACC.V) + 1);
    end Get_Aggregate_Count;
-
-   ---------------------------
-   -- Get_Aggregate_Element --
-   ---------------------------
-
-   function Get_Aggregate_Element
-     (ACC   : not null access Aggregate_Content'Class;
-      TC    : TypeCode.Local_Ref;
-      Index : Unsigned_Long;
-      Mech  : not null access Mechanism) return Content'Class
-   is
-   begin
-      return Get_Aggregate_Element (ACC, TypeCode.Object_Of (TC), Index, Mech);
-   end Get_Aggregate_Element;
-
    overriding function Get_Aggregate_Element
      (ACC   : not null access Default_Aggregate_Content;
       TC    : TypeCode.Object_Ptr;
@@ -1572,80 +1779,10 @@ package body PolyORB.Any is
          return El_C_Ptr.The_Value.all;
       end if;
    end Get_Aggregate_Element;
-
-   ---------------------------
-   -- Get_Aggregate_Element --
-   ---------------------------
-
-   function Get_Aggregate_Element
-     (Value : Any;
-      TC    : TypeCode.Local_Ref;
-      Index : Unsigned_Long) return Any
-   is
-   begin
-      return Get_Aggregate_Element (Value, TypeCode.Object_Of (TC), Index);
-   end Get_Aggregate_Element;
-
-   function Get_Aggregate_Element
-     (Value : Any;
-      TC    : TypeCode.Object_Ptr;
-      Index : Unsigned_Long) return Any
-   is
-      --  Enforce tag check on Value's container to defend against improper
-      --  access for an Any that is not an aggregate.
-
-      pragma Unsuppress (Tag_Check);
-      CA_Ptr : constant Aggregate_Content_Ptr :=
-        Aggregate_Content_Ptr (Get_Container (Value).The_Value);
-
-      A : Any;
-      M : aliased Mechanism := By_Value;
-      CC : constant Content'Class :=
-        Get_Aggregate_Element (CA_Ptr, TC, Index, M'Access);
-
-      New_CC : Content_Ptr;
-   begin
-      Set_Type (A, TC);
-
-      New_CC := Clone (CC);
-
-      Set_Value (Get_Container (A).all,  New_CC, Foreign => False);
-      return A;
-   end Get_Aggregate_Element;
-
-   function Get_Aggregate_Element
-     (Value : Any;
-      Index : Unsigned_Long) return Types.Unsigned_Long
-     renames Elementary_Any_ULong.Get_Aggregate_Element;
-
-   function Get_Aggregate_Element
-     (Value : Any_Container'Class;
-      Index : Unsigned_Long) return Types.Unsigned_Long
-     renames Elementary_Any_ULong.Get_Aggregate_Element;
-
-   function Get_Aggregate_Element
-     (Value : Any;
-      Index : Unsigned_Long) return Types.Octet
-     renames Elementary_Any_Octet.Get_Aggregate_Element;
-
-   function Get_Aggregate_Element
-     (Value : Any_Container'Class;
-      Index : Unsigned_Long) return Types.Octet
-     renames Elementary_Any_Octet.Get_Aggregate_Element;
-
-   -------------------
-   -- Get_Container --
-   -------------------
-
    function Get_Container (A : Any) return Any_Container_Ptr is
    begin
       return Any_Container_Ptr (Entity_Of (A));
    end Get_Container;
-
-   -------------------
-   -- Get_Empty_Any --
-   -------------------
-
    function Get_Empty_Any (Tc : TypeCode.Local_Ref) return Any is
       Result : Any;
    begin
@@ -1656,11 +1793,6 @@ package body PolyORB.Any is
 
       return Result;
    end Get_Empty_Any;
-
-   -----------------------------
-   -- Get_Empty_Any_Aggregate --
-   -----------------------------
-
    function Get_Empty_Any_Aggregate (TC : TypeCode.Local_Ref) return Any
    is
       A    : Any;
@@ -1679,11 +1811,6 @@ package body PolyORB.Any is
       pragma Debug (C, O ("Get_Empty_Any_Aggregate: end"));
       return A;
    end Get_Empty_Any_Aggregate;
-
-   --------------
-   -- Get_Type --
-   --------------
-
    function Get_Type (A : Any) return TypeCode.Local_Ref is
    begin
       return TypeCode.To_Ref (Get_Type_Obj (A));
@@ -1705,29 +1832,14 @@ package body PolyORB.Any is
    begin
       return TypeCode.Object_Of (C.The_Type);
    end Get_Type_Obj;
-
-   ----------------------
-   -- Get_Unwound_Type --
-   ----------------------
-
    function Get_Unwound_Type (The_Any : Any) return TypeCode.Object_Ptr is
    begin
       return Unwind_Typedefs (Get_Type_Obj (The_Any));
    end Get_Unwound_Type;
-
-   ---------------
-   -- Get_Value --
-   ---------------
-
    function Get_Value (C : Any_Container'Class) return Content_Ptr is
    begin
       return C.The_Value;
    end Get_Value;
-
-   -----------
-   -- Image --
-   -----------
-
    function Image (NV : NamedValue) return Standard.String is
       function Flag_Name (F : Flags) return Standard.String;
       pragma Inline (Flag_Name);
@@ -1988,11 +2100,6 @@ package body PolyORB.Any is
       when others =>
          return "<Image raised an exception>";
    end Image;
-
-   ----------------
-   -- Initialize --
-   ----------------
-
    overriding procedure Initialize (Self : in out Any) is
       use type PolyORB.Smart_Pointers.Entity_Ptr;
 
@@ -2004,11 +2111,6 @@ package body PolyORB.Any is
       Use_Entity (Self, PolyORB.Smart_Pointers.Entity_Ptr (Container));
       pragma Debug (C, O ("Initializing Any: leave"));
    end Initialize;
-
-   --------------
-   -- Is_Empty --
-   --------------
-
    function Is_Empty (A : Any) return Boolean is
    begin
       return Is_Empty (Get_Container (A).all);
@@ -2022,11 +2124,6 @@ package body PolyORB.Any is
    begin
       return C.The_Value = null;
    end Is_Empty;
-
-   --------------------
-   -- Move_Any_Value --
-   --------------------
-
    procedure Move_Any_Value (Dst_C, Src_C : in out Any_Container'Class) is
    begin
       if Src_C'Address = Dst_C'Address then
@@ -2057,22 +2154,12 @@ package body PolyORB.Any is
       end if;
       Move_Any_Value (Dst_C.all, Src_C.all);
    end Move_Any_Value;
-
-   -------------
-   -- No_Wrap --
-   -------------
-
    function No_Wrap (X : access T) return Content'Class is
       pragma Unreferenced (X);
    begin
       raise Program_Error;
       return No_Content'(null record);
    end No_Wrap;
-
-   ------------------
-   -- Pos_From_Any --
-   ------------------
-
    function Pos_From_Any
      (C : Any_Container'Class) return Types.Unsigned_Long
    is
@@ -2099,11 +2186,6 @@ package body PolyORB.Any is
             raise TypeCode.BadKind;
       end case;
    end Pos_From_Any;
-
-   -------------------------
-   -- Set_Aggregate_Count --
-   -------------------------
-
    overriding procedure Set_Aggregate_Count
      (ACC   : in out Default_Aggregate_Content;
       Count : Types.Unsigned_Long)
@@ -2120,21 +2202,6 @@ package body PolyORB.Any is
          ACC.V.Table (J) := null;
       end loop;
    end Set_Aggregate_Count;
-
-   ---------------------------
-   -- Set_Aggregate_Element --
-   ---------------------------
-
-   procedure Set_Aggregate_Element
-     (ACC    : in out Aggregate_Content'Class;
-      TC     : TypeCode.Local_Ref;
-      Index  : Unsigned_Long;
-      From_C : in out Any_Container'Class)
-   is
-   begin
-      Set_Aggregate_Element (ACC, TypeCode.Object_Of (TC), Index, From_C);
-   end Set_Aggregate_Element;
-
    procedure Set_Aggregate_Element
      (ACC    : in out Aggregate_Content;
       TC     : TypeCode.Object_Ptr;
@@ -2149,11 +2216,6 @@ package body PolyORB.Any is
       raise Program_Error;
 
    end Set_Aggregate_Element;
-
-   ---------------------------
-   -- Set_Aggregate_Element --
-   ---------------------------
-
    overriding procedure Set_Aggregate_Element
      (ACC    : in out Default_Aggregate_Content;
       TC     : TypeCode.Object_Ptr;
@@ -2190,11 +2252,6 @@ package body PolyORB.Any is
          Move_Any_Value (Dst_C => El_C, Src_C => From_C);
       end if;
    end Set_Aggregate_Element;
-
-   -----------------------------
-   -- Set_Any_Aggregate_Value --
-   -----------------------------
-
    procedure Set_Any_Aggregate_Value (Agg_C : in out Any_Container'Class) is
       use TypeCode;
       Kind : constant TCKind :=
@@ -2213,99 +2270,10 @@ package body PolyORB.Any is
             Allocate_Default_Aggregate_Content (Kind), Foreign => False);
       end if;
    end Set_Any_Aggregate_Value;
-
-   -------------------
-   -- Set_Any_Value --
-   -------------------
-
-   procedure Set_Any_Value (X : Types.Short;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Short.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Long;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Long.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Long_Long;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Long_Long.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Unsigned_Short;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_UShort.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Unsigned_Long;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_ULong.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Unsigned_Long_Long;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_ULong_Long.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Float;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Float.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Double;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Double.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Long_Double;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Long_Double.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Boolean;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Boolean.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Char;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Char.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Wchar;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Wchar.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Octet;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Octet.Set_Any_Value;
-   procedure Set_Any_Value (X : Any;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Any.Set_Any_Value;
-   procedure Set_Any_Value (X : TypeCode.Local_Ref;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_TypeCode.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.String;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_String.Set_Any_Value;
-   procedure Set_Any_Value (X : Types.Wide_String;
-                            C : in out Any_Container'Class)
-                            renames Elementary_Any_Wide_String.Set_Any_Value;
-
-   procedure Set_Any_Value
-     (X : Standard.String; C : in out Any_Container'Class)
-   is
-   begin
-      Set_Any_Value (To_PolyORB_String (X), C);
-   end Set_Any_Value;
-
-   procedure Set_Any_Value (X : String; Bound : Positive;
-                            C : in out Any_Container'Class) is
-   begin
-      Elementary_Any_Bounded_String.Set_Any_Value
-        (Ada.Strings.Superbounded.To_Super_String
-           (X, Max_Length => Bound), C);
-   end Set_Any_Value;
-
-   procedure Set_Any_Value (X : Wide_String; Bound : Positive;
-                            C : in out Any_Container'Class) is
-   begin
-      Elementary_Any_Bounded_Wide_String.Set_Any_Value
-        (Ada.Strings.Wide_Superbounded.To_Super_String
-           (X, Max_Length => Bound), C);
-   end Set_Any_Value;
-
-   -------------------
-   -- Set_Container --
-   -------------------
-
    procedure Set_Container (A : in out Any; ACP : Any_Container_Ptr) is
    begin
       Set (A, Smart_Pointers.Entity_Ptr (ACP));
    end Set_Container;
-
-   --------------
-   -- Set_Type --
-   --------------
-
    procedure Set_Type (A : in out Any; TC : TypeCode.Local_Ref) is
    begin
       Set_Type (A, TypeCode.Object_Of (TC));
@@ -2331,11 +2299,6 @@ package body PolyORB.Any is
    begin
       C.The_Type := TypeCode.To_Ref (TC);
    end Set_Type;
-
-   ---------------
-   -- Set_Value --
-   ---------------
-
    procedure Set_Value
      (C       : in out Any_Container'Class;
       CC      : Content_Ptr;
@@ -2350,157 +2313,6 @@ package body PolyORB.Any is
       C.The_Value := CC;
       C.Foreign   := Foreign;
    end Set_Value;
-
-   ------------
-   -- To_Any --
-   ------------
-
-   package To_Any_Instances is
-      function To_Any is
-        new To_Any_G
-          (Types.Octet, TC_Octet, Elementary_Any_Octet.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Short, TC_Short, Elementary_Any_Short.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Long, TC_Long, Elementary_Any_Long.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Long_Long, TC_Long_Long,
-           Elementary_Any_Long_Long.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Unsigned_Short, TC_Unsigned_Short,
-           Elementary_Any_UShort.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Unsigned_Long, TC_Unsigned_Long,
-           Elementary_Any_ULong.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Unsigned_Long_Long, TC_Unsigned_Long_Long,
-           Elementary_Any_ULong_Long.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Boolean, TC_Boolean, Elementary_Any_Boolean.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Char, TC_Char, Elementary_Any_Char.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Wchar, TC_Wchar, Elementary_Any_Wchar.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Float, TC_Float, Elementary_Any_Float.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Double, TC_Double, Elementary_Any_Double.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Long_Double, TC_Long_Double,
-           Elementary_Any_Long_Double.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.String, TC_String, Elementary_Any_String.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Types.Wide_String, TC_Wide_String,
-           Elementary_Any_Wide_String.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (Any, TC_Any, Elementary_Any_Any.Set_Any_Value);
-
-      function To_Any is
-        new To_Any_G
-          (TypeCode.Local_Ref, TC_TypeCode,
-           Elementary_Any_TypeCode.Set_Any_Value);
-
-   end To_Any_Instances;
-
-   function To_Any (X : Types.Octet) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Short) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Long) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Long_Long) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Unsigned_Short) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Unsigned_Long) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Unsigned_Long_Long) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Boolean) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Char) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Wchar) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Float) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Double) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Long_Double) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.String) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Types.Wide_String) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : Any) return Any
-                    renames To_Any_Instances.To_Any;
-   function To_Any (X : TypeCode.Local_Ref) return Any
-                    renames To_Any_Instances.To_Any;
-
-   function To_Any
-     (X  : Ada.Strings.Superbounded.Super_String;
-      TC : access function return TypeCode.Local_Ref) return Any
-   is
-      function To_Any is
-        new To_Any_G
-          (Ada.Strings.Superbounded.Super_String, TC.all,
-           Elementary_Any_Bounded_String.Set_Any_Value);
-   begin
-      return To_Any (X);
-   end To_Any;
-
-   function To_Any
-     (X  : Ada.Strings.Wide_Superbounded.Super_String;
-      TC : access function return TypeCode.Local_Ref) return Any
-   is
-      function To_Any is
-        new To_Any_G
-          (Ada.Strings.Wide_Superbounded.Super_String, TC.all,
-           Elementary_Any_Bounded_Wide_String.Set_Any_Value);
-   begin
-      return To_Any (X);
-   end To_Any;
-
-   function To_Any (X : Standard.String) return Any is
-   begin
-      return To_Any (To_PolyORB_String (X));
-   end To_Any;
-
-   ---------------------
-   -- Unchecked_Get_V --
-   ---------------------
-
    function Unchecked_Get_V
      (X : not null access Content) return System.Address
    is
@@ -2511,11 +2323,6 @@ package body PolyORB.Any is
 
       return System.Null_Address;
    end Unchecked_Get_V;
-
-   ---------------------
-   -- Unwind_Typedefs --
-   ---------------------
-
    function Unwind_Typedefs
      (TC : TypeCode.Local_Ref) return TypeCode.Local_Ref
    is
@@ -2535,70 +2342,711 @@ package body PolyORB.Any is
       return Result;
    end Unwind_Typedefs;
 
-   ----------
-   -- Wrap --
-   ----------
+   ----------------------------------------------------------------------------
+   -- Accessor Wrapper Stubs - Delegate to Accessor_Impl
+   ----------------------------------------------------------------------------
+   --  RDB-004 Task 3: Accessor Extraction Pattern (ADR-005)
+   --
+   --  These wrapper stubs maintain the existing public API while delegating
+   --  all implementation to the nested Accessor_Impl package.
+   --
+   --  Total wrapper stubs: 109 (matching Accessor_Impl package spec 1:1)
+
+   ----------------------------------------
+   -- From_Any Wrapper Stubs (39 functions)
+   ----------------------------------------
+
+   --  From_Any (Any_Container'Class) overloads - 17 wrappers
+
+   function From_Any (C : Any_Container'Class) return Types.Octet is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Short is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Long is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Long_Long is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Unsigned_Short is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Unsigned_Long is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any
+     (C : Any_Container'Class) return Types.Unsigned_Long_Long is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Boolean is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Char is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Wchar is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Float is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Double is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Long_Double is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.String is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Types.Wide_String is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Any is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return TypeCode.Local_Ref is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   --  From_Any (Any) overloads - 19 wrappers
+
+   function From_Any (A : Any) return Types.Octet is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Short is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Long is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Long_Long is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Unsigned_Short is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Unsigned_Long is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Unsigned_Long_Long is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Boolean is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Char is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Wchar is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Float is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Double is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Long_Double is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.String is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Types.Wide_String is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Any is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return TypeCode.Local_Ref is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Ada.Strings.Superbounded.Super_String is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any
+     (A : Any) return Ada.Strings.Wide_Superbounded.Super_String is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   --  From_Any (Standard types) - 3 wrappers
+
+   function From_Any (C : Any_Container'Class) return Standard.String is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (C : Any_Container'Class) return Standard.Wide_String is
+   begin
+      return Accessor_Impl.From_Any (C);
+   end From_Any;
+
+   function From_Any (A : Any) return Standard.String is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   function From_Any (A : Any) return Standard.Wide_String is
+   begin
+      return Accessor_Impl.From_Any (A);
+   end From_Any;
+
+   --------------------------------------
+   -- To_Any Wrapper Stubs (20 functions)
+   --------------------------------------
+
+   function To_Any (X : Types.Octet) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Short) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Long) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Long_Long) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Unsigned_Short) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Unsigned_Long) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Unsigned_Long_Long) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Boolean) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Char) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Wchar) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Float) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Double) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Long_Double) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.String) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Types.Wide_String) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : Any) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any (X : TypeCode.Local_Ref) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   function To_Any
+     (X  : Ada.Strings.Superbounded.Super_String;
+      TC : access function return TypeCode.Local_Ref)
+      return Any
+   is
+   begin
+      return Accessor_Impl.To_Any (X, TC);
+   end To_Any;
+
+   function To_Any
+     (X  : Ada.Strings.Wide_Superbounded.Super_String;
+      TC : access function return TypeCode.Local_Ref)
+      return Any
+   is
+   begin
+      return Accessor_Impl.To_Any (X, TC);
+   end To_Any;
+
+   function To_Any (X : Standard.String) return Any is
+   begin
+      return Accessor_Impl.To_Any (X);
+   end To_Any;
+
+   ------------------------------------------------
+   -- Set_Any_Value Wrapper Stubs (20 procedures)
+   ------------------------------------------------
+
+   procedure Set_Any_Value
+     (X : Types.Short;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Long;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Long_Long;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Unsigned_Short;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Unsigned_Long;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Unsigned_Long_Long;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Float;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Double;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Long_Double;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Boolean;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Char;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Wchar;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Octet;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Any;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : TypeCode.Local_Ref;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.String;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Types.Wide_String;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X : Standard.String;
+      C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X     : String;
+      Bound : Positive;
+      C     : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, Bound, C);
+   end Set_Any_Value;
+
+   procedure Set_Any_Value
+     (X     : Wide_String;
+      Bound : Positive;
+      C     : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Any_Value (X, Bound, C);
+   end Set_Any_Value;
+
+   ----------------------------------------------
+   -- Get_Aggregate Wrapper Stubs (8 functions)
+   ----------------------------------------------
+
+   --  Get_Aggregate_Count - 1 wrapper
+
+   function Get_Aggregate_Count (Value : Any) return Unsigned_Long is
+   begin
+      return Accessor_Impl.Get_Aggregate_Count (Value);
+   end Get_Aggregate_Count;
+
+   --  Get_Aggregate_Element - 7 wrappers
+
+   function Get_Aggregate_Element
+     (ACC   : not null access Aggregate_Content'Class;
+      TC    : TypeCode.Local_Ref;
+      Index : Unsigned_Long;
+      Mech  : not null access Mechanism)
+      return Content'Class
+   is
+   begin
+      return Accessor_Impl.Get_Aggregate_Element (ACC, TC, Index, Mech);
+   end Get_Aggregate_Element;
+
+   function Get_Aggregate_Element
+     (Value : Any;
+      TC    : TypeCode.Local_Ref;
+      Index : Unsigned_Long)
+      return Any
+   is
+   begin
+      return Accessor_Impl.Get_Aggregate_Element (Value, TC, Index);
+   end Get_Aggregate_Element;
+
+   function Get_Aggregate_Element
+     (Value : Any;
+      TC    : TypeCode.Object_Ptr;
+      Index : Unsigned_Long)
+      return Any
+   is
+   begin
+      return Accessor_Impl.Get_Aggregate_Element (Value, TC, Index);
+   end Get_Aggregate_Element;
+
+   function Get_Aggregate_Element
+     (Value : Any;
+      Index : Unsigned_Long)
+      return Types.Unsigned_Long
+   is
+   begin
+      return Accessor_Impl.Get_Aggregate_Element (Value, Index);
+   end Get_Aggregate_Element;
+
+   function Get_Aggregate_Element
+     (Value : Any_Container'Class;
+      Index : Unsigned_Long)
+      return Types.Unsigned_Long
+   is
+   begin
+      return Accessor_Impl.Get_Aggregate_Element (Value, Index);
+   end Get_Aggregate_Element;
+
+   function Get_Aggregate_Element
+     (Value : Any;
+      Index : Unsigned_Long)
+      return Types.Octet
+   is
+   begin
+      return Accessor_Impl.Get_Aggregate_Element (Value, Index);
+   end Get_Aggregate_Element;
+
+   function Get_Aggregate_Element
+     (Value : Any_Container'Class;
+      Index : Unsigned_Long)
+      return Types.Octet
+   is
+   begin
+      return Accessor_Impl.Get_Aggregate_Element (Value, Index);
+   end Get_Aggregate_Element;
+
+   ------------------------------------------------
+   -- Set_Aggregate Wrapper Stubs (2 procedures)
+   ------------------------------------------------
+
+   procedure Set_Aggregate_Element
+     (ACC    : in out Aggregate_Content'Class;
+      TC     : TypeCode.Local_Ref;
+      Index  : Unsigned_Long;
+      From_C : in out Any_Container'Class)
+   is
+   begin
+      Accessor_Impl.Set_Aggregate_Element (ACC, TC, Index, From_C);
+   end Set_Aggregate_Element;
+
+   -------------------------------------
+   -- Wrap Wrapper Stubs (19 functions)
+   -------------------------------------
+
+   function Wrap (X : not null access Types.Octet) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap (X : not null access Types.Short) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap (X : not null access Types.Long) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap (X : not null access Types.Long_Long) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
 
    function Wrap
-     (X : not null access Types.Octet) return Content'Class
-     renames Elementary_Any_Octet.Wrap;
-   function Wrap
-     (X : not null access Types.Short) return Content'Class
-     renames Elementary_Any_Short.Wrap;
-   function Wrap
-     (X : not null access Types.Long) return Content'Class
-     renames Elementary_Any_Long.Wrap;
-   function Wrap
-     (X : not null access Types.Long_Long) return Content'Class
-     renames Elementary_Any_Long_Long.Wrap;
-   function Wrap
-     (X : not null access Types.Unsigned_Short) return Content'Class
-     renames Elementary_Any_UShort.Wrap;
-   function Wrap
-     (X : not null access Types.Unsigned_Long) return Content'Class
-     renames Elementary_Any_ULong.Wrap;
-   function Wrap
-     (X : not null access Types.Unsigned_Long_Long) return Content'Class
-     renames Elementary_Any_ULong_Long.Wrap;
-   function Wrap
-     (X : not null access Types.Boolean) return Content'Class
-     renames Elementary_Any_Boolean.Wrap;
-   function Wrap
-     (X : not null access Types.Char) return Content'Class
-     renames Elementary_Any_Char.Wrap;
-   function Wrap
-     (X : not null access Types.Wchar) return Content'Class
-     renames Elementary_Any_Wchar.Wrap;
-   function Wrap
-     (X : not null access Types.Float) return Content'Class
-     renames Elementary_Any_Float.Wrap;
-   function Wrap
-     (X : not null access Types.Double) return Content'Class
-     renames Elementary_Any_Double.Wrap;
-   function Wrap
-     (X : not null access Types.Long_Double) return Content'Class
-     renames Elementary_Any_Long_Double.Wrap;
-   function Wrap
-     (X : not null access Types.String) return Content'Class
-     renames Elementary_Any_String.Wrap;
-   function Wrap
-     (X : not null access Types.Wide_String) return Content'Class
-     renames Elementary_Any_Wide_String.Wrap;
+     (X : not null access Types.Unsigned_Short) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
 
-   function Wrap (X : not null access Any) return Content'Class
-     renames Elementary_Any_Any.Wrap;
+   function Wrap
+     (X : not null access Types.Unsigned_Long) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
 
-   function Wrap (X : not null access TypeCode.Local_Ref) return Content'Class
-     renames Elementary_Any_TypeCode.Wrap;
+   function Wrap
+     (X : not null access Types.Unsigned_Long_Long)
+      return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap (X : not null access Types.Boolean) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap (X : not null access Types.Char) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap (X : not null access Types.Wchar) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap (X : not null access Types.Float) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap (X : not null access Types.Double) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap
+     (X : not null access Types.Long_Double) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap
+     (X : not null access Types.String) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap
+     (X : not null access Types.Wide_String) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap (X : not null access Any) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
+   function Wrap
+     (X : not null access TypeCode.Local_Ref) return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
 
    function Wrap
      (X : not null access Ada.Strings.Superbounded.Super_String)
-      return Content'Class
-     renames Elementary_Any_Bounded_String.Wrap;
+      return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
    function Wrap
      (X : not null access Ada.Strings.Wide_Superbounded.Super_String)
-      return Content'Class
-     renames Elementary_Any_Bounded_Wide_String.Wrap;
+      return Content'Class is
+   begin
+      return Accessor_Impl.Wrap (X);
+   end Wrap;
+
 
    --------------
    -- TypeCode --
