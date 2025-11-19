@@ -54,7 +54,7 @@ package PolyORB.Protocols.GIOP.Common_Impl is
    --  RDB-005 Extraction Phase 1: 100% Duplicate Procedures
    --  Target: Marshall_Locate_Request (GIOP 1.0 & 1.1 only)
 
-   procedure Marshall_Locate_Request
+   procedure Marshall_Locate_Request_Common
      (Buffer     : Buffers.Buffer_Access;
       Request_Id : Types.Unsigned_Long;
       Object_Key : Objects.Object_Id_Access);
