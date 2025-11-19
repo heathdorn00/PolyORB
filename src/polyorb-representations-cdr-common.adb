@@ -770,6 +770,19 @@ package body PolyORB.Representations.CDR.Common is
 
    begin
       pragma Debug (C, O ("Unmarshall (Encapsulation): length" & Length'Img));
+
+      --  Handle empty sequence
+      if Length = 0 then
+         return Stream_Element_Array'(1 .. 0 => 0);
+      end if;
+
+      --  SEC-001: Validate length before allocation (treat as sequence)
+      Validate_Length (Length, MAX_SEQUENCE_LENGTH, "Unmarshall_Stream_Element_Array");
+
+      --  SEC-001: Check buffer has sufficient data
+      Check_Remaining (Buffer, Stream_Element_Offset (Length));
+
+      --  Safe to allocate now
       declare
          E : Stream_Element_Array (1 .. Stream_Element_Offset (Length));
       begin
