@@ -1,0 +1,148 @@
+# Datadog Agent Helm Values
+# RDB-007: Datadog APM Instrumentation
+# Phase 1: Infrastructure Setup
+#
+# Install with:
+#   helm repo add datadog https://helm.datadoghq.com
+#   helm install datadog-agent datadog/datadog -f datadog-agent-values.yaml -n monitoring
+
+# API Keys - Use K8s secrets in production
+datadog:
+  # Reference secrets created separately:
+  # kubectl create secret generic datadog-keys \
+  #   --from-literal=api-key=<DD_API_KEY> \
+  #   --from-literal=app-key=<DD_APP_KEY> \
+  #   -n monitoring
+  apiKeyExistingSecret: datadog-keys
+  appKeyExistingSecret: datadog-keys
+
+  # Datadog site (US1)
+  site: datadoghq.com
+
+  # Cluster name for identification
+  clusterName: polyorb-refactor-cluster
+
+  # Tags applied to all data
+  tags:
+    - "env:development"
+    - "team:refactor"
+    - "project:polyorb"
+
+  # APM Configuration
+  apm:
+    portEnabled: true
+    socketEnabled: true
+    # Enable APM on port 8126
+    enabled: true
+
+  # OpenTelemetry Protocol (OTLP) Receivers
+  # Required for Ada services using OTLP
+  otlp:
+    receiver:
+      protocols:
+        grpc:
+          enabled: true
+          endpoint: "0.0.0.0:4317"
+          # Use default settings
+          useHostPort: true
+        http:
+          enabled: true
+          endpoint: "0.0.0.0:4318"
+          useHostPort: true
+
+  # Log Collection
+  logs:
+    enabled: true
+    containerCollectAll: true
+    # Enable log collection from all containers
+    containerCollectUsingFiles: true
+
+  # Process Monitoring
+  processAgent:
+    enabled: true
+    processCollection: true
+
+  # Network Performance Monitoring (optional)
+  networkMonitoring:
+    enabled: false  # Enable later if needed
+
+  # Security Monitoring (optional)
+  securityAgent:
+    compliance:
+      enabled: false
+    runtime:
+      enabled: false
+
+# Cluster Agent for Kubernetes metrics
+clusterAgent:
+  enabled: true
+  # Metrics provider for HPA
+  metricsProvider:
+    enabled: true
+    useDatadogMetrics: true
+
+  # Admission controller for auto-instrumentation
+  admissionController:
+    enabled: true
+    mutateUnlabelled: false
+
+# Agent resource limits
+agents:
+  # Run as DaemonSet on all nodes
+  enabled: true
+
+  # Resource limits
+  containers:
+    agent:
+      resources:
+        requests:
+          cpu: "200m"
+          memory: "256Mi"
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+
+    traceAgent:
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          cpu: "200m"
+          memory: "256Mi"
+
+    processAgent:
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          cpu: "200m"
+          memory: "256Mi"
+
+  # Tolerations to run on all nodes
+  tolerations:
+    - operator: Exists
+
+  # Use host network for better performance
+  useHostNetwork: true
+  useHostPort: true
+  useHostPID: true
+
+# Kube State Metrics
+kubeStateMetricsCore:
+  enabled: true
+
+# Prometheus scraping (coexist with existing Prometheus)
+datadog:
+  prometheusScrape:
+    enabled: false  # Don't scrape yet - avoid duplicates
+
+# Service account
+serviceAccount:
+  create: true
+  name: datadog-agent
+
+# RBAC
+rbac:
+  create: true
