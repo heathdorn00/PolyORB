@@ -41,6 +41,7 @@ with PolyORB.Initialization;
 with PolyORB.Tasking.Mutexes;
 with PolyORB.Tasking.Threads;
 with PolyORB.Utils.Strings;
+with PolyORB.Utils.Unchecked_Deallocation;
 
 package body PolyORB.X509 is
 
@@ -89,6 +90,7 @@ package body PolyORB.X509 is
    --  Return an unsigned long value identifying the current thread.
 
    procedure Initialize;
+   procedure Shutdown;
 
    procedure Raise_X509_Error;
 
@@ -163,6 +165,9 @@ package body PolyORB.X509 is
       -----------------------
 
       procedure OPENSSL_free (Item : System.Address);
+
+      procedure sk_X509_free (Stack : Certificate_Chain);
+      pragma Import (C, sk_X509_free, "sk_X509_free");
 
       ------------------------
       -- PolyORB extensions --
@@ -443,6 +448,14 @@ package body PolyORB.X509 is
       end if;
    end Destroy;
 
+   procedure Destroy (The_Certificate_Chain : in out Certificate_Chain) is
+   begin
+      if The_Certificate_Chain /= null then
+         Thin.sk_X509_free (The_Certificate_Chain);
+         The_Certificate_Chain := null;
+      end if;
+   end Destroy;
+
    ---------------
    -- Duplicate --
    ---------------
@@ -590,6 +603,16 @@ package body PolyORB.X509 is
 
       Thin.ERR_load_PolyORB_strings;
    end Initialize;
+
+   procedure Shutdown is
+      procedure Free_Lock_Array is new PolyORB.Utils.Unchecked_Deallocation.Free
+        (Object => Lock_Array, Name => Lock_Array_Access);
+   begin
+      for J in Crypto_Locks'Range loop
+         PTM.Destroy (Crypto_Locks (J));
+      end loop;
+      Free_Lock_Array (Crypto_Locks);
+   end Shutdown;
 
 --   ------------
 --   -- Length --
@@ -815,7 +838,7 @@ begin
           Provides  => Empty,
           Implicit  => False,
           Init      => Initialize'Access,
-          Shutdown  => null));
+          Shutdown  => Shutdown'Access));
    end;
 
 end PolyORB.X509;

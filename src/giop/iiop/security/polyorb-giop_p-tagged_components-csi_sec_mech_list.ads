@@ -35,12 +35,15 @@ pragma Ada_2012;
 --  TAG_CSI_SEC_MECH_LIST Tagged Component
 
 with PolyORB.ASN1;
+with PolyORB.Errors;
 with PolyORB.GIOP_P.Transport_Mechanisms;
-with PolyORB.Security.Exported_Names;
+with PolyORB.QoS;
 with PolyORB.Security.Authority_Mechanisms;
+with PolyORB.Security.Exported_Names;
 with PolyORB.Security.Transport_Mechanisms;
 with PolyORB.Security.Types;
 with PolyORB.Transport;
+with PolyORB.Utils.Chained_Lists;
 
 package PolyORB.GIOP_P.Tagged_Components.CSI_Sec_Mech_List is
 

@@ -34,6 +34,8 @@ pragma Ada_2012;
 
 --  Used only as transport_mech in TAG_CSI_SEC_MECH_LIST tagged component.
 
+with PolyORB.Errors;
+
 package PolyORB.GIOP_P.Tagged_Components.Null_Tag is
 
    type TC_Null_Tag is new Tagged_Component

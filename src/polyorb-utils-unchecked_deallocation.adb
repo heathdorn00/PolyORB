@@ -30,13 +30,15 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Unchecked_Deallocation;
+
 package body PolyORB.Utils.Unchecked_Deallocation is
 
    ----------
    -- Free --
    ----------
 
-   procedure Free (X : in out Name) is
+   procedure Free (X : in Out Name) is
       procedure Deallocate is new Ada.Unchecked_Deallocation (Object, Name);
    begin
       Deallocate (X);
