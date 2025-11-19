@@ -37,6 +37,7 @@ with Ada.Strings.Fixed;
 with Ada.Tags;
 with PolyORB.Utils.Unchecked_Deallocation;
 
+with PolyORB.Any.Controlled;
 with PolyORB.Log;
 with PolyORB.Utils.Dynamic_Tables;
 
@@ -80,6 +81,11 @@ package body PolyORB.Any is
    --  Helper for Any_Container_Eq, handles the case of aggregates
 
    type Aggregate_Content_Ptr is access all Aggregate_Content'Class;
+
+   ------------------------------------------------------------------
+   -- Accessor implementations (RDB-004 Task 3 preparation)        --
+   -- Generic bodies, type instantiations, and aggregate handling  --
+   ------------------------------------------------------------------
 
    --------------------
    -- Elementary_Any --
@@ -486,10 +492,19 @@ package body PolyORB.Any is
    function Allocate_Default_Aggregate_Content
      (Kind : TCKind) return Content_Ptr
    is
-      Result : constant Aggregate_Content_Ptr :=
-        new Default_Aggregate_Content (Kind => Kind);
+      use PolyORB.Any.Controlled;
+      Guard  : Content_Holder;
+      Result : Aggregate_Content_Ptr;
    begin
+      --  SEC-002: Exception-safe allocation using controlled type
+      Result := new Default_Aggregate_Content (Kind => Kind);
+      Take_Ownership (Guard, Content_Ptr (Result));
+
+      --  Initialize may raise - Guard ensures cleanup on exception
       Content_Tables.Initialize (Default_Aggregate_Content (Result.all).V);
+
+      --  Success: transfer ownership to caller
+      Release_Ownership (Guard);
       return Content_Ptr (Result);
    end Allocate_Default_Aggregate_Content;
 
@@ -969,6 +984,7 @@ package body PolyORB.Any is
      (CC   : Default_Aggregate_Content;
       Into : Content_Ptr := null) return Content_Ptr
    is
+      use PolyORB.Any.Controlled;
       use PolyORB.Smart_Pointers;
       use Content_Tables;
    begin
@@ -977,11 +993,17 @@ package body PolyORB.Any is
       end if;
 
       declare
-         New_CC_P : constant Content_Ptr :=
-           Allocate_Default_Aggregate_Content (CC.Kind);
-         New_CC   : Default_Aggregate_Content
-           renames Default_Aggregate_Content (New_CC_P.all);
+         --  SEC-002: Use Content_Holder for transactional semantics
+         --  If any allocation or Set_Value fails, Finalize will cleanup
+         --  all allocated containers via Deep_Deallocate
+         Guard    : Content_Holder;
+         New_CC_P : Content_Ptr;
+         New_CC   : access Default_Aggregate_Content;
       begin
+         New_CC_P := Allocate_Default_Aggregate_Content (CC.Kind);
+         Take_Ownership (Guard, New_CC_P);
+         New_CC := Default_Aggregate_Content (New_CC_P.all)'Access;
+
          Set_Last (New_CC.V, Last (CC.V));
          for J in First (New_CC.V) .. Last (New_CC.V) loop
 
@@ -996,6 +1018,9 @@ package body PolyORB.Any is
             Set_Value (New_CC.V.Table (J).all,
                        Clone (CC.V.Table (J).The_Value.all), Foreign => False);
          end loop;
+
+         --  Success: transfer ownership to caller
+         Release_Ownership (Guard);
          return New_CC_P;
       end;
    end Clone;
@@ -1348,6 +1373,10 @@ package body PolyORB.Any is
       Deep_Deallocate (CC.V);
    end Finalize_Value;
 
+   ------------------------------------------------------------------
+   -- Public accessor renames                                      --
+   ------------------------------------------------------------------
+
    --------------
    -- From_Any --
    --------------
@@ -1543,12 +1572,24 @@ package body PolyORB.Any is
 
       if El_C_Ptr = null then
 
-         --  Allocate new container and count one reference (the aggregate)
-
+         --  SEC-002: Exception-safe allocation of new container
          El_C_Ptr := new Any_Container;
-         Inc_Usage (Entity_Ptr (El_C_Ptr));
-
-         El_C_Ptr.The_Type := TypeCode.To_Ref (TC);
+         begin
+            --  Count one reference (the aggregate)
+            Inc_Usage (Entity_Ptr (El_C_Ptr));
+            El_C_Ptr.The_Type := TypeCode.To_Ref (TC);
+         exception
+            when others =>
+               --  Cleanup on exception to prevent memory leak
+               declare
+                  procedure Free_Container is
+                    new PolyORB.Utils.Unchecked_Deallocation.Free
+                      (Any_Container'Class, Any_Container_Ptr);
+               begin
+                  Free_Container (El_C_Ptr);
+               end;
+               raise;
+         end;
       end if;
 
       if (El_C_Ptr.The_Value = null)
@@ -1996,12 +2037,27 @@ package body PolyORB.Any is
    overriding procedure Initialize (Self : in out Any) is
       use type PolyORB.Smart_Pointers.Entity_Ptr;
 
-      Container : constant Any_Container_Ptr := new Any_Container;
+      Container : Any_Container_Ptr;
    begin
       pragma Debug (C, O ("Initializing Any: enter"));
       pragma Assert (Entity_Of (Self) = null);
 
-      Use_Entity (Self, PolyORB.Smart_Pointers.Entity_Ptr (Container));
+      --  SEC-002: Exception-safe allocation
+      Container := new Any_Container;
+      begin
+         Use_Entity (Self, PolyORB.Smart_Pointers.Entity_Ptr (Container));
+      exception
+         when others =>
+            --  Cleanup on exception to prevent memory leak
+            declare
+               procedure Free_Container is
+                 new PolyORB.Utils.Unchecked_Deallocation.Free
+                   (Any_Container'Class, Any_Container_Ptr);
+            begin
+               Free_Container (Container);
+            end;
+            raise;
+      end;
       pragma Debug (C, O ("Initializing Any: leave"));
    end Initialize;
 
