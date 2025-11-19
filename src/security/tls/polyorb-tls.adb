@@ -227,6 +227,9 @@ package body PolyORB.TLS is
 
       procedure SSL_load_error_strings;
 
+      procedure RAND_poll;
+      pragma Import (C, RAND_poll, "RAND_poll");
+
       --  PolyORB extensions
 
    private
@@ -552,6 +555,7 @@ package body PolyORB.TLS is
    begin
       Thin.SSL_load_error_strings;
       Thin.SSL_library_init;
+      Thin.RAND_poll;
       --  XXX actions_to_seed_PRNG
    end Initialize;
 

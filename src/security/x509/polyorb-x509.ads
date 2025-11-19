@@ -40,6 +40,8 @@ package PolyORB.X509 is
 
    type Certificate_Chain is private;
 
+   procedure Destroy (The_Certificate_Chain : in out Certificate_Chain);
+
 --   type Private_Key is private;
 
    --  Exceptions

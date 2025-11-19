@@ -78,6 +78,9 @@ package body PolyORB.SSL is
 
       procedure SSL_load_error_strings;
 
+      procedure RAND_poll;
+      pragma Import (C, RAND_poll, "RAND_poll");
+
       --  Context subprograms
 
       function SSL_CTX_new (Method : SSL_Method) return SSL_Context_Type;
@@ -612,6 +615,7 @@ package body PolyORB.SSL is
    begin
       Thin.SSL_load_error_strings;
       Thin.SSL_library_init;
+      Thin.RAND_poll;
       --  XXX actions_to_seed_PRNG
    end Initialize;
 

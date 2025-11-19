@@ -125,8 +125,18 @@ package body PolyORB.Security.Credentials.GSSUP is
       --  Destroy Target_Name (existing cleanup)
       PolyORB.Security.Exported_Names.Destroy (Self.Target_Name);
 
-      --  TODO: Add audit logging once PolyORB.Security.Audit_Log is fixed
-      --  to work with preelaborated packages
+      --  INV-AUDIT-001: Audit log CRITICAL credential deallocation
+      --  Logs the deallocation of GSSUP credentials for auditing purposes.
+      begin
+         PolyORB.Security.Audit_Log.Audit_Log
+           (Event     => "GSSUP credential deallocated",
+            Object_ID => "User: " & User_Str,
+            Severity  => PolyORB.Security.Audit_Log.CRITICAL);
+      exception
+         when others =>
+            --  Log to stderr as a fallback if Audit_Log fails during termination
+            Ada.Text_IO.Put_Line ("WARNING: Failed to audit log GSSUP credential deallocation for user: " & User_Str);
+      end;
 
    end Finalize;
 
