@@ -63,9 +63,9 @@ package body PolyORB.Any is
       Name => Content_Ptr);
 
    procedure Move_Any_Value (Dst_C, Src_C : in out Any_Container'Class);
-   --   Transfer the value of Src_C to Dst_C; Src_C is empty upon return.
-   --   Foreign status is transferred from Src_C to Dst_C. The previous contents
-   --   of Dst_C are deallocated if appropriate.
+   --  Transfer the value of Src_C to Dst_C; Src_C is empty upon return.
+   --  Foreign status is transferred from Src_C to Dst_C. The previous
+   --  contents of Dst_C are deallocated if appropriate.
 
    function Any_Container_Eq
      (TC           : TypeCode.Object_Ptr;
@@ -2209,9 +2209,9 @@ package body PolyORB.Any is
       From_C : in out Any_Container'Class) is
    begin
 
-      --   By default this is not implemented. This operation must be overridden
-      --   for derived types of Aggregate_Content that may return No_Content
-      --   in Get_Aggregate_Element.
+      --  By default this is not implemented. This operation must be
+      --  overridden for derived types of Aggregate_Content that may
+      --  return No_Content in Get_Aggregate_Element.
 
       raise Program_Error;
 
@@ -3052,9 +3052,9 @@ package body PolyORB.Any is
    --  TypeCode --
    --------------
 
-   --   TypeCode package body extracted to separate compilation unit
-   --   See: src/polyorb-any-typecode.adb
-   --   Extraction performed as part of RDB-004: Decompose polyorb-any God Class
+   --  TypeCode package body extracted to separate compilation unit
+   --  See: src/polyorb-any-typecode.adb
+   --  Extraction: RDB-004 Decompose polyorb-any God Class
 
    package body TypeCode is separate;
 
