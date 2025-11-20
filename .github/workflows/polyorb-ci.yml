@@ -58,6 +58,14 @@ jobs:
           gnatmake -c $STRICT_FLAGS src/polyorb-any.ads || exit 1
         fi
 
+        # Check validation module (RDB-008)
+        if [ -f src/polyorb-utils-validation.ads ]; then
+          echo "Checking validation module with strict flags..."
+          gnatmake -c $STRICT_FLAGS src/polyorb-utils-validation.ads || exit 1
+          gnatmake -c $STRICT_FLAGS src/polyorb-utils-validation.adb || exit 1
+          echo "✅ Validation module passes strict checking"
+        fi
+
         echo "✅ GNAT strict checking passed"
 
     - name: Count Phase 1 Refactoring Progress
