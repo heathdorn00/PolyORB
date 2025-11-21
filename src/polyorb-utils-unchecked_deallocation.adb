@@ -30,6 +30,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Unchecked_Deallocation;
+
 package body PolyORB.Utils.Unchecked_Deallocation is
 
    ----------
