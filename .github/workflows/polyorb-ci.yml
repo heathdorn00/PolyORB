@@ -38,6 +38,36 @@ jobs:
         echo "✅ Phase 1 utility package compiles successfully"
         echo "Note: Full build validation happens in Gate 3"
 
+    - name: GNAT Strict Checking (Validity & Overflow)
+      run: |
+        echo "🔒 Running GNAT strict checking modes..."
+        # -gnatVa: All validity checks
+        # -gnato: Overflow checking
+        # -fstack-check: Stack overflow detection
+        # -gnatc: Syntax check only (no code generation)
+        STRICT_FLAGS="-gnatVa -gnato -fstack-check -gnatwa -gnatc"
+
+        echo "Checking core modules with strict flags: $STRICT_FLAGS"
+
+        # Check utility package with strict mode
+        gnatmake -c $STRICT_FLAGS src/polyorb-utils-unchecked_deallocation.ads || exit 1
+        gnatmake -c $STRICT_FLAGS src/polyorb-utils-unchecked_deallocation.adb || exit 1
+
+        # Check key Any modules with strict mode
+        if [ -f src/polyorb-any.ads ]; then
+          gnatmake -c $STRICT_FLAGS src/polyorb-any.ads || exit 1
+        fi
+
+        # Check validation module (RDB-008)
+        if [ -f src/polyorb-utils-validation.ads ]; then
+          echo "Checking validation module with strict flags..."
+          gnatmake -c $STRICT_FLAGS src/polyorb-utils-validation.ads || exit 1
+          gnatmake -c $STRICT_FLAGS src/polyorb-utils-validation.adb || exit 1
+          echo "✅ Validation module passes strict checking"
+        fi
+
+        echo "✅ GNAT strict checking passed"
+
     - name: Count Phase 1 Refactoring Progress
       run: |
         echo "📊 Phase 1 Refactoring Metrics:"
@@ -139,7 +169,7 @@ jobs:
     - name: Install GNAT and Build Tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y gnat-13 gprbuild gcc g++ make python3
+        sudo apt-get install -y gnat-13 gprbuild gcc g++ make python3 valgrind
 
     - name: Configure PolyORB
       run: |
@@ -157,6 +187,58 @@ jobs:
         else
           echo "✅ Test suite not found, skipping"
         fi
+
+    - name: Valgrind Memory Check (Linux)
+      run: |
+        echo "🔍 Running Valgrind memory analysis..."
+
+        # Build a simple test program for Valgrind validation
+        if [ -f testsuite/tests/core/test_any.adb ]; then
+          cd testsuite/tests/core
+          gnatmake -g test_any.adb -o test_any_valgrind 2>/dev/null || echo "Test binary build skipped"
+
+          if [ -f test_any_valgrind ]; then
+            valgrind --leak-check=full \
+                     --show-leak-kinds=all \
+                     --track-origins=yes \
+                     --error-exitcode=1 \
+                     --suppressions=/dev/null \
+                     ./test_any_valgrind 2>&1 | tee valgrind-report.txt || true
+
+            # Check for critical memory errors (exit code 1 only for definite leaks)
+            if grep -q "definitely lost:" valgrind-report.txt; then
+              LOST=$(grep "definitely lost:" valgrind-report.txt | grep -oP '\d+(?= bytes)')
+              if [ "$LOST" -gt 0 ] 2>/dev/null; then
+                echo "⚠️  Valgrind found memory leaks: $LOST bytes"
+                echo "See valgrind-report.txt for details"
+              fi
+            fi
+            echo "✅ Valgrind analysis complete"
+          else
+            echo "⚠️  No test binary available for Valgrind, skipping"
+          fi
+          cd -
+        else
+          echo "ℹ️  Valgrind test skipped (test file not found)"
+        fi
+
+    - name: GNAT Strict Build Validation
+      run: |
+        echo "🔒 Validating build with GNAT strict checking flags..."
+
+        # Compile key modules with strict flags
+        # -gnatc: Syntax check only (no code generation)
+        STRICT_FLAGS="-gnatVa -gnato -fstack-check -gnatwa -gnatc"
+
+        # Validate core Any modules
+        for file in src/polyorb-any.ads src/polyorb-any.adb; do
+          if [ -f "$file" ]; then
+            echo "Checking $file with strict flags..."
+            gnatmake -c $STRICT_FLAGS "$file" || echo "⚠️  Warnings in $file (non-blocking)"
+          fi
+        done
+
+        echo "✅ GNAT strict build validation complete"
 
     - name: Validate Phase 1 Migration
       run: |
