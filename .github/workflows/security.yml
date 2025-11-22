@@ -35,7 +35,7 @@ jobs:
       - name: TruffleHog Secret Scan
         uses: trufflesecurity/trufflehog@main
         with:
-          path: ./
+          path: ./ 
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
           extra_args: --only-verified
@@ -71,8 +71,7 @@ jobs:
     timeout-minutes: 30
 
     strategy:
-      matrix:
-        tool: [cppcheck, clang-tidy, semgrep]
+      matrix: [cppcheck, clang-tidy, semgrep]
 
     steps:
       - name: Checkout code
@@ -98,7 +97,7 @@ jobs:
           find src/ -name "*.cpp" -o -name "*.cc" | \
           xargs clang-tidy-15 \
             -checks='bugprone-*,cert-*,clang-analyzer-*,concurrency-*,cppcoreguidelines-*,misc-*,modernize-*,performance-*,portability-*,readability-*,security-*' \
-            --warnings-as-errors='*' \
+            --warnings-as-errors='*'
             --format-style=google
 
       - name: Semgrep Scan
