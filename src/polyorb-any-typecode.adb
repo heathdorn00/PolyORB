@@ -38,6 +38,35 @@
 separate (PolyORB.Any)
 package body TypeCode is
 
+   ----------------------------------
+   -- Security Constants (CWE-674) --
+   ----------------------------------
+
+   --  Maximum recursion depth for TypeCode operations to prevent stack overflow
+   --  attacks via deeply nested TypeCodes (e.g., recursive struct definitions).
+   --  32 levels provides ample room for legitimate use cases while preventing
+   --  DoS attacks. See Checkpoint_3_TypeCode_Security_Brief.md.
+
+   MAX_TYPECODE_DEPTH : constant := 32;
+
+   --  Maximum number of members in aggregate TypeCodes to prevent memory
+   --  exhaustion attacks. 10,000 members is well beyond any legitimate use
+   --  case while providing a hard limit. See CWE-770.
+
+   MAX_MEMBER_COUNT : constant := 10_000;
+
+   ----------------------------------
+   -- Security Exceptions          --
+   ----------------------------------
+
+   Recursion_Depth_Exceeded : exception;
+   --  Raised when TypeCode recursion exceeds MAX_TYPECODE_DEPTH.
+   --  This prevents stack overflow from maliciously crafted TypeCodes.
+
+   Member_Count_Exceeded : exception;
+   --  Raised when attempting to add more than MAX_MEMBER_COUNT members
+   --  to an aggregate TypeCode. Prevents memory exhaustion attacks.
+
    ---------------------------------
    -- Support for union typecodes --
    ---------------------------------
@@ -94,16 +123,26 @@ package body TypeCode is
    -- Equal --
    -----------
 
-   function Equal (Left, Right : Local_Ref) return Boolean is
-   begin
-      return Equal (Object_Of (Left), Object_Of (Right));
-   end Equal;
+   --  Internal implementation with depth tracking for security (CWE-674)
+   function Equal_With_Depth
+     (Left, Right : Object_Ptr;
+      Depth       : Natural) return Boolean;
 
-   function Equal (Left, Right : Object_Ptr) return Boolean is
+   function Equal_With_Depth
+     (Left, Right : Object_Ptr;
+      Depth       : Natural) return Boolean
+   is
       Nb_Param : Unsigned_Long;
    begin
+      --  Security check: prevent stack overflow from deeply nested TypeCodes
+      if Depth > MAX_TYPECODE_DEPTH then
+         raise Recursion_Depth_Exceeded with
+           "TypeCode recursion depth exceeded " &
+           Natural'Image (MAX_TYPECODE_DEPTH) & " levels";
+      end if;
+
       pragma Debug
-        (C, O ("Equal (TypeCode): enter, Left = "
+        (C, O ("Equal (TypeCode): enter at depth" & Depth'Img & ", Left = "
                & Image (Left) & ", Right = " & Image (Right)));
 
       --  Shortcut further tests when testing for the same object
@@ -134,7 +173,7 @@ package body TypeCode is
          return True;
       end if;
 
-      --  Recursive comparison
+      --  Recursive comparison with depth tracking
 
       pragma Debug (C, O ("Equal (TypeCode): recursive comparison"));
 
@@ -151,6 +190,16 @@ package body TypeCode is
 
       pragma Debug (C, O ("Equal (TypeCode): end: True, all params match"));
       return True;
+   end Equal_With_Depth;
+
+   function Equal (Left, Right : Local_Ref) return Boolean is
+   begin
+      return Equal_With_Depth (Object_Of (Left), Object_Of (Right), 0);
+   end Equal;
+
+   function Equal (Left, Right : Object_Ptr) return Boolean is
+   begin
+      return Equal_With_Depth (Left, Right, 0);
    end Equal;
 
    -------------------
@@ -163,6 +212,7 @@ package body TypeCode is
    end Add_Parameter;
 
    procedure Add_Parameter (Obj : Object_Ptr; Param : Any) is
+      Current_Count : Unsigned_Long;
    begin
       pragma Debug (C, O ("Add_Parameter: enter"));
 
@@ -170,7 +220,16 @@ package body TypeCode is
          raise Program_Error with "TypeCode already frozen";
       end if;
 
-      pragma Debug (C, O ("Add_Parameter: adding " & Image (Param)));
+      --  Security check: prevent memory exhaustion from excessive members (CWE-770)
+      Current_Count := Parameter_Count (Obj);
+      if Current_Count >= Unsigned_Long (MAX_MEMBER_COUNT) then
+         raise Member_Count_Exceeded with
+           "TypeCode member count exceeded " &
+           Natural'Image (MAX_MEMBER_COUNT) & " members";
+      end if;
+
+      pragma Debug (C, O ("Add_Parameter: adding " & Image (Param) &
+                          " (count:" & Current_Count'Img & ")"));
 
       if Obj.Parameters = null then
          Obj.Parameters :=
@@ -377,28 +436,53 @@ package body TypeCode is
    -- Equivalent --
    ----------------
 
-   function Equivalent (Left, Right : Local_Ref) return Boolean is
-   begin
-      return Equivalent (Object_Of (Left), Object_Of (Right));
-   end Equivalent;
+   --  Internal implementation with depth tracking for security (CWE-674)
+   function Equivalent_With_Depth
+     (Left, Right : Object_Ptr;
+      Depth       : Natural) return Boolean;
 
-   function Equivalent (Left, Right : Object_Ptr) return Boolean is
+   function Equivalent_With_Depth
+     (Left, Right : Object_Ptr;
+      Depth       : Natural) return Boolean
+   is
       Nb_Param : constant Unsigned_Long := Member_Count (Left);
       pragma Assert (Nb_Param > 0);
 
       U_Left  : Object_Ptr := Left;
       U_Right : Object_Ptr := Right;
+      Alias_Depth : Natural := 0;
    begin
+      --  Security check: prevent stack overflow from deeply nested TypeCodes
+      if Depth > MAX_TYPECODE_DEPTH then
+         raise Recursion_Depth_Exceeded with
+           "TypeCode Equivalent recursion depth exceeded " &
+           Natural'Image (MAX_TYPECODE_DEPTH) & " levels";
+      end if;
+
       --  comments are from the spec CORBA v2.3 - 10.7.1
       --  If the result of the kind operation on either TypeCode is
       --  tk_alias, recursively replace the TypeCode with the result of
       --  calling content_type, until the kind is no longer tk_alias.
+      --  Security: also track alias unwrapping depth
 
       while Kind (U_Left) = Tk_Alias loop
+         Alias_Depth := Alias_Depth + 1;
+         if Alias_Depth > MAX_TYPECODE_DEPTH then
+            raise Recursion_Depth_Exceeded with
+              "TypeCode alias chain exceeded " &
+              Natural'Image (MAX_TYPECODE_DEPTH) & " levels";
+         end if;
          U_Left := Content_Type (U_Left);
       end loop;
 
+      Alias_Depth := 0;
       while Kind (U_Right) = Tk_Alias loop
+         Alias_Depth := Alias_Depth + 1;
+         if Alias_Depth > MAX_TYPECODE_DEPTH then
+            raise Recursion_Depth_Exceeded with
+              "TypeCode alias chain exceeded " &
+              Natural'Image (MAX_TYPECODE_DEPTH) & " levels";
+         end if;
          U_Right := Content_Type (U_Right);
       end loop;
 
@@ -473,6 +557,7 @@ package body TypeCode is
 
       --    * The results of the member_type operation for each member
       --      index are compared by recursively calling equivalent.
+      --      Security: pass incremented depth to recursive calls
 
       case Kind (Left) is
          when
@@ -482,8 +567,9 @@ package body TypeCode is
            Tk_Except =>
 
             for J in 0 .. Nb_Param - 1 loop
-               if not Equivalent (Member_Type (Left, J),
-                                  Member_Type (Right, J))
+               if not Equivalent_With_Depth (Member_Type (Left, J),
+                                             Member_Type (Right, J),
+                                             Depth + 1)
                then
                   return False;
                end if;
@@ -512,10 +598,12 @@ package body TypeCode is
 
       --    * The results of the discriminator_type operation are compared
       --  by recursively calling equivalent.
+      --  Security: pass incremented depth to recursive call
 
       if Kind (Left) = Tk_Union
-        and then not Equivalent (Discriminator_Type (Left),
-                                 Discriminator_Type (Right))
+        and then not Equivalent_With_Depth (Discriminator_Type (Left),
+                                            Discriminator_Type (Right),
+                                            Depth + 1)
       then
          return False;
       end if;
@@ -546,8 +634,9 @@ package body TypeCode is
             null;
       end case;
 
-      --    * The results of the discriminator_type operation are compared
+      --    * The results of the content_type operation are compared
       --  by recursively calling equivalent.
+      --  Security: pass incremented depth to recursive call
 
       case Kind (Left) is
          when
@@ -555,8 +644,9 @@ package body TypeCode is
            Tk_Array    |
            Tk_Valuebox =>
 
-            if not Equivalent (Content_Type (Left),
-                               Content_Type (Right))
+            if not Equivalent_With_Depth (Content_Type (Left),
+                                          Content_Type (Right),
+                                          Depth + 1)
             then
                return False;
             end if;
@@ -595,9 +685,11 @@ package body TypeCode is
          end if;
 
          --  concrete base type
+         --  Security: pass incremented depth to recursive call
 
-         if not Equivalent (Concrete_Base_Type (Left),
-                            Concrete_Base_Type (Right))
+         if not Equivalent_With_Depth (Concrete_Base_Type (Left),
+                                       Concrete_Base_Type (Right),
+                                       Depth + 1)
          then
             return False;
          end if;
@@ -606,6 +698,18 @@ package body TypeCode is
       --  All structure parameters are equivalent
 
       return True;
+   end Equivalent_With_Depth;
+
+   --  Public wrapper functions that start recursion at depth 0
+
+   function Equivalent (Left, Right : Local_Ref) return Boolean is
+   begin
+      return Equivalent_With_Depth (Object_Of (Left), Object_Of (Right), 0);
+   end Equivalent;
+
+   function Equivalent (Left, Right : Object_Ptr) return Boolean is
+   begin
+      return Equivalent_With_Depth (Left, Right, 0);
    end Equivalent;
 
    ------------
