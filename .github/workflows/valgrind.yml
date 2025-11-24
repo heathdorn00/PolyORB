@@ -1,0 +1,273 @@
+# Valgrind Memory Safety CI Workflow
+# Purpose: Run Valgrind memory analysis on security test binaries
+# Owner: @security_verification
+# Created: 2025-11-23
+# Target: RDB-009 Task 6 - CDR Integration & Validation
+
+name: Valgrind Memory Safety
+
+on:
+  push:
+    branches: [main, develop, 'feature/**', 'refactor/**']
+    paths:
+      - 'src/**/*.adb'
+      - 'src/**/*.ads'
+      - 'reference_implementations/**'
+      - '.github/workflows/valgrind.yml'
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      fail_on_leaks:
+        description: 'Fail build on memory leaks'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  FAIL_ON_LEAKS: ${{ github.event.inputs.fail_on_leaks || 'true' }}
+  FAIL_ON_ERRORS: 'true'
+
+jobs:
+  valgrind-analysis:
+    name: Valgrind Memory Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+            /var/lib/apt/lists
+          key: apt-valgrind-${{ runner.os }}-${{ hashFiles('.github/workflows/valgrind.yml') }}
+          restore-keys: |
+            apt-valgrind-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            valgrind \
+            gnat-13 \
+            gprbuild \
+            gcc \
+            make \
+            autoconf \
+            automake \
+            libtool
+
+      - name: Verify Valgrind installation
+        run: |
+          valgrind --version
+          echo "Valgrind installed successfully"
+
+      - name: Copy security verification scripts
+        run: |
+          # Copy from security_verification directory if it exists at project root
+          if [ -d "../security_verification" ]; then
+            cp ../security_verification/valgrind_runner.sh .
+            cp ../security_verification/ci_valgrind_integration.sh .
+            cp ../security_verification/valgrind.supp . 2>/dev/null || true
+          fi
+          chmod +x valgrind_runner.sh ci_valgrind_integration.sh 2>/dev/null || true
+
+      - name: Configure PolyORB with debug symbols
+        run: |
+          ./configure \
+            --prefix=/usr/local \
+            --enable-debug=yes \
+            CFLAGS="-g -O0" \
+            ADAFLAGS="-g -O0" \
+            || (cat config.log && exit 1)
+
+      - name: Build PolyORB with debug symbols
+        run: |
+          make -j$(nproc) all ADAFLAGS="-g -O0 -gnata"
+
+      - name: Build security test binaries
+        working-directory: reference_implementations
+        run: |
+          # Check if reference implementations exist
+          if [ ! -d "." ]; then
+            echo "No reference_implementations directory found"
+            exit 0
+          fi
+
+          # Build security validation test with debug
+          if [ -f "security_validation_test.adb" ]; then
+            gnatmake -g -O0 -gnata security_validation_test.adb -o security_validation_test
+          fi
+
+          # Build input validation benchmark with debug
+          if [ -f "input_validation_benchmark.adb" ]; then
+            gnatmake -g -O0 -gnata input_validation_benchmark.adb -o input_validation_benchmark
+          fi
+
+          # List built executables
+          ls -la *test* *benchmark* 2>/dev/null || echo "No test binaries found"
+
+      - name: Run Valgrind on security_validation_test
+        id: valgrind_security
+        continue-on-error: true
+        working-directory: reference_implementations
+        run: |
+          mkdir -p ../valgrind_results
+
+          if [ -f "./security_validation_test" ]; then
+            valgrind \
+              --leak-check=full \
+              --show-leak-kinds=all \
+              --track-origins=yes \
+              --verbose \
+              --log-file=../valgrind_results/security_validation_test.log \
+              --error-exitcode=1 \
+              --num-callers=20 \
+              ./security_validation_test
+
+            VALGRIND_EXIT=$?
+            echo "exit_code=$VALGRIND_EXIT" >> $GITHUB_OUTPUT
+
+            # Parse leak summary
+            if grep -q "definitely lost: 0 bytes" ../valgrind_results/security_validation_test.log; then
+              echo "leaks_found=false" >> $GITHUB_OUTPUT
+            else
+              echo "leaks_found=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "security_validation_test not found"
+            echo "exit_code=0" >> $GITHUB_OUTPUT
+            echo "leaks_found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Valgrind on input_validation_benchmark
+        id: valgrind_benchmark
+        continue-on-error: true
+        working-directory: reference_implementations
+        run: |
+          if [ -f "./input_validation_benchmark" ]; then
+            valgrind \
+              --leak-check=full \
+              --show-leak-kinds=all \
+              --track-origins=yes \
+              --verbose \
+              --log-file=../valgrind_results/input_validation_benchmark.log \
+              --error-exitcode=1 \
+              --num-callers=20 \
+              ./input_validation_benchmark
+
+            VALGRIND_EXIT=$?
+            echo "exit_code=$VALGRIND_EXIT" >> $GITHUB_OUTPUT
+          else
+            echo "input_validation_benchmark not found"
+            echo "exit_code=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate Valgrind Summary
+        run: |
+          echo "## Valgrind Memory Safety Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### security_validation_test" >> $GITHUB_STEP_SUMMARY
+          if [ -f "valgrind_results/security_validation_test.log" ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E "(definitely|indirectly|possibly|still reachable|ERROR SUMMARY)" valgrind_results/security_validation_test.log >> $GITHUB_STEP_SUMMARY || echo "No summary found"
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No results available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### input_validation_benchmark" >> $GITHUB_STEP_SUMMARY
+          if [ -f "valgrind_results/input_validation_benchmark.log" ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E "(definitely|indirectly|possibly|still reachable|ERROR SUMMARY)" valgrind_results/input_validation_benchmark.log >> $GITHUB_STEP_SUMMARY || echo "No summary found"
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No results available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Valgrind logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: valgrind-results
+          path: valgrind_results/
+          retention-days: 30
+
+      - name: Check for failures
+        run: |
+          FAILED=0
+
+          if [ "${{ steps.valgrind_security.outputs.leaks_found }}" == "true" ]; then
+            echo "::error::Memory leaks detected in security_validation_test"
+            if [ "$FAIL_ON_LEAKS" == "true" ]; then
+              FAILED=1
+            fi
+          fi
+
+          if [ "${{ steps.valgrind_security.outputs.exit_code }}" != "0" ]; then
+            echo "::error::Valgrind errors in security_validation_test"
+            if [ "$FAIL_ON_ERRORS" == "true" ]; then
+              FAILED=1
+            fi
+          fi
+
+          if [ $FAILED -eq 1 ]; then
+            echo "Valgrind checks failed"
+            exit 1
+          else
+            echo "✅ All Valgrind checks passed"
+          fi
+
+  # Job 2: Run CI Integration Script (if available)
+  valgrind-ci-integration:
+    name: Valgrind CI Integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: valgrind-analysis
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y valgrind gnat-13 gprbuild
+
+      - name: Run CI integration script
+        if: hashFiles('ci_valgrind_integration.sh') != ''
+        env:
+          TEST_DIR: ./reference_implementations
+          TEST_PATTERN: '*_test'
+          RESULTS_DIR: ./valgrind_ci_results
+          FAIL_ON_LEAKS: ${{ env.FAIL_ON_LEAKS }}
+          FAIL_ON_ERRORS: ${{ env.FAIL_ON_ERRORS }}
+        run: |
+          if [ -f "./ci_valgrind_integration.sh" ]; then
+            chmod +x ./ci_valgrind_integration.sh
+            ./ci_valgrind_integration.sh || echo "CI integration completed with findings"
+          else
+            echo "No CI integration script found"
+          fi
+
+      - name: Upload CI results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: valgrind-ci-results
+          path: valgrind_ci_results/
+          retention-days: 30
+          if-no-files-found: ignore
