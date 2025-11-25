@@ -42,8 +42,9 @@ package body TypeCode is
    -- Security Constants (CWE-674) --
    ----------------------------------
 
-   --  Maximum recursion depth for TypeCode operations to prevent stack overflow
-   --  attacks via deeply nested TypeCodes (e.g., recursive struct definitions).
+   --  Maximum recursion depth for TypeCode operations to prevent
+   --  stack overflow attacks via deeply nested TypeCodes (e.g.,
+   --  recursive struct definitions).
    --  32 levels provides ample room for legitimate use cases while preventing
    --  DoS attacks. See Checkpoint_3_TypeCode_Security_Brief.md.
 
@@ -220,7 +221,8 @@ package body TypeCode is
          raise Program_Error with "TypeCode already frozen";
       end if;
 
-      --  Security check: prevent memory exhaustion from excessive members (CWE-770)
+      --  Security check: prevent memory exhaustion from excessive
+      --  members (CWE-770)
       Current_Count := Parameter_Count (Obj);
       if Current_Count >= Unsigned_Long (MAX_MEMBER_COUNT) then
          raise Member_Count_Exceeded with
