@@ -61,7 +61,7 @@ package body PolyORB.Any.CDR is
    procedure Validate_Buffer_Remaining
      (Buffer   : access Buffer_Type;
       Required : Stream_Element_Count;
-      Error    : in Out Error_Container)
+      Error    : in out Error_Container)
    is
       Remaining : constant Stream_Element_Count := Remaining_Length (Buffer);
    begin
@@ -96,7 +96,7 @@ package body PolyORB.Any.CDR is
    procedure Check_Type_Alignment
      (Buffer    : access Buffer_Type;
       Type_Size : Alignment_Type;
-      Error     : in Out Error_Container)
+      Error     : in out Error_Container)
    is
       use PolyORB.Utils.Buffers;
       Current_Pos : constant Stream_Element_Count :=
@@ -135,7 +135,7 @@ package body PolyORB.Any.CDR is
 
    procedure Validate_String_Length
      (Length : Types.Unsigned_Long;
-      Error  : in Out Error_Container)
+      Error  : in out Error_Container)
    is
    begin
       if Length > Max_String_Length then
@@ -157,7 +157,7 @@ package body PolyORB.Any.CDR is
 
    procedure Validate_Sequence_Length
      (Length : Types.Unsigned_Long;
-      Error  : in Out Error_Container)
+      Error  : in out Error_Container)
    is
    begin
       if Length > Max_Sequence_Length then

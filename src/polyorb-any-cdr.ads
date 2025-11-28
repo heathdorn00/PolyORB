@@ -87,7 +87,7 @@ package PolyORB.Any.CDR is
    procedure Check_Type_Alignment
      (Buffer    : access Buffer_Type;
       Type_Size : Alignment_Type;
-      Error     : in Out Error_Container);
+      Error     : in out Error_Container);
    --  Validate that current buffer position is properly aligned for Type_Size.
    --  Sets Marshal_E error if alignment is violated.
    --  SEC-002: Prevents misaligned memory access.
@@ -110,7 +110,7 @@ package PolyORB.Any.CDR is
 
    procedure Validate_Sequence_Length
      (Length : Types.Unsigned_Long;
-      Error  : in Out Error_Container);
+      Error  : in out Error_Container);
    --  Validate sequence length is within safe bounds.
    --  SEC-001: Prevents memory exhaustion from malformed data.
 
