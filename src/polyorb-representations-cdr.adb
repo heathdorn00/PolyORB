@@ -2258,7 +2258,7 @@ package body PolyORB.Representations.CDR is
                           TypeCode.Length (TC);
                      begin
                         Nb := Unmarshall (Buffer);
-                        --  SEC-001: Validate sequence length against DoS limits
+                        --  SEC-001: Validate sequence length (DoS)
                         Validate_Sequence_Length (Nb, Error);
                         if Found (Error) then
                            return;
